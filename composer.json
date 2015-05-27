@@ -1,0 +1,18 @@
+{
+    "name": "sinacloud/sae-php-sdk",
+    "description": "SAE PHP SDK for PHP 5.2.x",
+    "type": "library",
+    "homepage": "https://github.com/sinacloud/sae-php-sdk",
+    "authors": [
+        {
+            "name": "chenfeng2",
+            "email": "chenfeng2@staff.sina.com.cn"
+        }
+    ],
+    "require": {
+        "php": ">=5.2.0"
+    },
+    "autoload": {
+        "classmap": ["storage.php"]
+    }
+}
