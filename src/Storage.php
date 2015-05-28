@@ -17,7 +17,7 @@
  * Storage::setAuth($AccessKey, $SecretKey);
  * </code>
  *
- * 其中AccessKey时应用的“应用名:应用AccessKey”
+ * 其中AccessKey是应用的“应用名:应用AccessKey”
  *
  * Object操作：
  *
