@@ -1,13 +1,16 @@
 <?php
 
+namespace sinacloud\sae;
+
 /**
  * SAE Storage PHP客户端
  *
+ * @copyright Copyright (c) 2015, SINA, All rights reserved.
+ *
  * 我们可以通过两种方式来调用Storage的接口，面向对象的方式和通过静态方法。
  *
- * <code>
+ * ```php
  * <?php
- * //
  * use sinacloud\sae\Storage as Storage;
  *
  * // 面向对象方式(e,g; $s3->getObject(...)):
@@ -15,16 +18,17 @@
  *
  * // 静态方法(e,g; Storage::getObject(...)):
  * Storage::setAuth($AccessKey, $SecretKey);
- * </code>
+ * ?>
+ * ```
  *
- * 其中AccessKey是应用的“应用名:应用AccessKey”
+ * 其中AccessKey是应用的 *应用名:应用AccessKey*
  *
- * Object操作：
+ * **Object操作**
  *
- * <code>
+ * ```php
  * <?php
  * // 上传一个文件
- * Storage::putObject(Storage::inputFile($file, false), $bucketName, $uploadName)
+ * Storage::putObject(Storage::inputFile($file), $bucketName, $uploadName)
  *
  * // 上传一个字符串，并且设置其Content-type
  * Storage::putObject($string, $bucketName, $uploadName, Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'))
@@ -43,11 +47,12 @@
  *
  * // 删除一个Object
  * Storage::deleteObject($bucketName, $uploadName)
- * </code>
+ * ?>
+ * ```
  *
- * Bucket操作：
+ * **Bucket操作**
  *
- * <code>
+ * ```php
  * <?php
  * // 获取Bucket列表
  * Storage::listBuckets()  // Simple bucket list
@@ -66,12 +71,9 @@
  *
  * // 删除一个空的Bucket
  * Storage::deleteBucket($bucketName)
- * </code>
- *
- * @copyright Copyright (c) 2015, SINA, All rights reserved.
+ * ?>
+ * ```
  */
-
-namespace sinacloud\sae;
 
 class Storage
 {
@@ -638,7 +640,7 @@ class Storage
      * @param string $bucket Bucket名称
      * @param string $uri Object名称
      * @param mixed $saveTo 文件保存到的文件名或者句柄
-     * @return 返回服务端返回的response，其中headers为Object的属性信息，body为Object的内容
+     * @return mixed 返回服务端返回的response，其中headers为Object的属性信息，body为Object的内容
      */
     public static function getObject($bucket, $uri, $saveTo = false)
     {
@@ -900,6 +902,9 @@ class Storage
 
 }
 
+/**
+ * @ignore
+ */
 final class StorageRequest
     {
         private $endpoint;
@@ -1165,6 +1170,8 @@ class StorageException extends \Exception {
 
 /**
  * A PHP wrapper for Storage
+ *
+ * @ignore
  */
 final class StorageWrapper extends Storage {
     private $position = 0, $mode = '', $buffer;
