@@ -856,13 +856,15 @@ final class StorageRequest
             $this->endpoint = $endpoint;
             $this->verb = $verb;
 
-            $this->uri = "/v1/SAE_$account";
-            $this->strip_prefix_size = 8;
+            $this->uri = "/v1/SAE_" . rawurlencode($account);
+            $this->resource = "/$account";
             if ($bucket !== '') {
-                $this->uri = $this->uri . '/' . $bucket;
+                $this->uri = $this->uri . '/' . rawurlencode($bucket);
+                $this->resource = $this->resource . '/'. $bucket;
             }
             if ($uri !== '') {
                 $this->uri .= '/'.str_replace('%2F', '/', rawurlencode($uri)); 
+                $this->resource = $this->resource . '/'. str_replace(' ', '%20', $uri);
             }
 
             $this->headers['Host'] = $this->endpoint;
@@ -903,10 +905,11 @@ final class StorageRequest
                     else $query .= $var.'='.rawurlencode($value).'&';
                 $query = substr($query, 0, -1);
                 $this->uri .= $query;
+                $this->resource .= $query;
             }
             $url = (Storage::$useSSL ? 'https://' : 'http://') . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint) . $this->uri;
 
-            //var_dump('uri: ' . $this->uri, 'url: ' . $url);
+            //var_dump('uri: ' . $this->uri, 'url: ' . $url, 'resource: ' . $this->resource);
 
             // Basic setup
             $curl = curl_init();
@@ -957,7 +960,7 @@ final class StorageRequest
                 $headers[] = 'Authorization: ' . Storage::__getSignature(
                     $this->verb."\n".
                     $this->headers['Date'].$sae."\n".
-                    str_replace(' ', '%20', rawurldecode('/' . substr($this->uri, $this->strip_prefix_size)))
+                    $this->resource
                 );
             }
 
