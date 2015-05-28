@@ -318,14 +318,14 @@ class Storage
                 $response->error = array('code' => $response->code, 'message' => 'Unexpected HTTP status');
             if ($response->error !== false)
             {
-                self::__triggerError(sprintf("Storage::getBucket(): [%s] %s",
-                    $response->error['code'], $response->error['message']), __FILE__, __LINE__);
+                self::__triggerError(sprintf("Storage::getBucket(): [%s] %s", $response->error['code'],
+                    $response->error['message']), __FILE__, __LINE__);
                 return false;
             }
 
             $objects = json_decode($response->body, True);
             if ($objects === False) {
-                self::__triggerError(sprintf("Storage::getBucket(): invalid body: %s", $rest->body),
+                self::__triggerError(sprintf("Storage::getBucket(): invalid body: %s", $response->body),
                     __FILE__, __LINE__);
                 return false;
             }
@@ -915,243 +915,243 @@ class Storage
  * @ignore
  */
 final class StorageRequest
+{
+    private $endpoint;
+    private $verb;
+    private $uri;
+    private $parameters = array();
+    private $swsHeaders = array();
+    private $headers = array(
+        'Host' => '', 'Date' => '', 'Content-MD5' => '', 'Content-Type' => ''
+    );
+
+    public $fp = false;
+    public $size = 0;
+    public $data = false;
+
+    public $response;
+
+
+    function __construct($verb, $account, $bucket = '', $uri = '', $endpoint = DEFAULT_STORAGE_ENDPOINT)
     {
-        private $endpoint;
-        private $verb;
-        private $uri;
-        private $parameters = array();
-        private $swsHeaders = array();
-        private $headers = array(
-            'Host' => '', 'Date' => '', 'Content-MD5' => '', 'Content-Type' => ''
-        );
+        $this->endpoint = $endpoint;
+        $this->verb = $verb;
 
-        public $fp = false;
-        public $size = 0;
-        public $data = false;
-
-        public $response;
-
-
-        function __construct($verb, $account, $bucket = '', $uri = '', $endpoint = DEFAULT_STORAGE_ENDPOINT)
-        {
-            $this->endpoint = $endpoint;
-            $this->verb = $verb;
-
-            $this->uri = "/v1/SAE_" . rawurlencode($account);
-            $this->resource = "/$account";
-            if ($bucket !== '') {
-                $this->uri = $this->uri . '/' . rawurlencode($bucket);
-                $this->resource = $this->resource . '/'. $bucket;
-            }
-            if ($uri !== '') {
-                $this->uri .= '/'.str_replace('%2F', '/', rawurlencode($uri));
-                $this->resource = $this->resource . '/'. str_replace(' ', '%20', $uri);
-            }
-
-            $this->headers['Host'] = $this->endpoint;
-            $this->headers['Date'] = gmdate('D, d M Y H:i:s T');
-            $this->response = new \STDClass;
-            $this->response->error = false;
-            $this->response->body = null;
-            $this->response->headers = array();
+        $this->uri = "/v1/SAE_" . rawurlencode($account);
+        $this->resource = "/$account";
+        if ($bucket !== '') {
+            $this->uri = $this->uri . '/' . rawurlencode($bucket);
+            $this->resource = $this->resource . '/'. $bucket;
+        }
+        if ($uri !== '') {
+            $this->uri .= '/'.str_replace('%2F', '/', rawurlencode($uri));
+            $this->resource = $this->resource . '/'. str_replace(' ', '%20', $uri);
         }
 
-
-        public function setParameter($key, $value)
-        {
-            $this->parameters[$key] = $value;
-        }
-
-
-        public function setHeader($key, $value)
-        {
-            $this->headers[$key] = $value;
-        }
-
-
-        public function setSwsHeader($key, $value)
-        {
-            $this->swsHeaders[$key] = $value;
-        }
-
-
-        public function getResponse()
-        {
-            $query = '';
-            if (sizeof($this->parameters) > 0)
-            {
-                $query = substr($this->uri, -1) !== '?' ? '?' : '&';
-                foreach ($this->parameters as $var => $value)
-                    if ($value == null || $value == '') $query .= $var.'&';
-                    else $query .= $var.'='.rawurlencode($value).'&';
-                $query = substr($query, 0, -1);
-                $this->uri .= $query;
-                $this->resource .= $query;
-            }
-            $url = (Storage::$useSSL ? 'https://' : 'http://') . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint) . $this->uri;
-
-            //var_dump('uri: ' . $this->uri, 'url: ' . $url, 'resource: ' . $this->resource);
-
-            // Basic setup
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_USERAGENT, 'Storage/php');
-
-            if (Storage::$useSSL)
-            {
-                // Set protocol version
-                curl_setopt($curl, CURLOPT_SSLVERSION, Storage::$useSSLVersion);
-
-                // SSL Validation can now be optional for those with broken OpenSSL installations
-                curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, Storage::$useSSLValidation ? 2 : 0);
-                curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, Storage::$useSSLValidation ? 1 : 0);
-            }
-
-            curl_setopt($curl, CURLOPT_URL, $url);
-
-            if (Storage::$proxy != null && isset(Storage::$proxy['host']))
-            {
-                curl_setopt($curl, CURLOPT_PROXY, Storage::$proxy['host']);
-                curl_setopt($curl, CURLOPT_PROXYTYPE, Storage::$proxy['type']);
-                if (isset(Storage::$proxy['user'], Storage::$proxy['pass']) && Storage::$proxy['user'] != null && S3::$proxy['pass'] != null)
-                    curl_setopt($curl, CURLOPT_PROXYUSERPWD, sprintf('%s:%s', Storage::$proxy['user'], Storage::$proxy['pass']));
-            }
-
-            // Headers
-            $headers = array(); $sae = array();
-            foreach ($this->swsHeaders as $header => $value)
-                if (strlen($value) > 0) $headers[] = $header.': '.$value;
-            foreach ($this->headers as $header => $value)
-                if (strlen($value) > 0) $headers[] = $header.': '.$value;
-
-            foreach ($this->swsHeaders as $header => $value)
-                if (strlen($value) > 0) $sae[] = strtolower($header).':'.$value;
-
-            if (sizeof($sae) > 0)
-            {
-                usort($sae, array(&$this, '__sortMetaHeadersCmp'));
-                $sae= "\n".implode("\n", $sae);
-            } else $sae = '';
-
-            if (Storage::hasAuth())
-            {
-                $headers[] = 'Authorization: ' . Storage::__getSignature(
-                    $this->verb."\n".
-                    $this->headers['Date'].$sae."\n".
-                    $this->resource
-                );
-            }
-
-            //var_dump("headers:", $headers);
-
-            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($curl, CURLOPT_HEADER, false);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);
-            curl_setopt($curl, CURLOPT_WRITEFUNCTION, array(&$this, '__responseWriteCallback'));
-            curl_setopt($curl, CURLOPT_HEADERFUNCTION, array(&$this, '__responseHeaderCallback'));
-            curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
-
-            // Request types
-            switch ($this->verb)
-            {
-            case 'GET': break;
-            case 'PUT': case 'POST':
-                if ($this->fp !== false)
-                {
-                    curl_setopt($curl, CURLOPT_PUT, true);
-                    curl_setopt($curl, CURLOPT_INFILE, $this->fp);
-                    if ($this->size >= 0)
-                        curl_setopt($curl, CURLOPT_INFILESIZE, $this->size);
-                }
-                elseif ($this->data !== false)
-                {
-                    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->verb);
-                    curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data);
-                }
-                else
-                    curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->verb);
-                break;
-            case 'HEAD':
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');
-                curl_setopt($curl, CURLOPT_NOBODY, true);
-                break;
-            case 'DELETE':
-                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
-                break;
-            default: break;
-            }
-
-            // Execute, grab errors
-            if (curl_exec($curl))
-                $this->response->code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            else
-                $this->response->error = array(
-                    'code' => curl_errno($curl),
-                    'message' => curl_error($curl),
-                );
-
-            @curl_close($curl);
-
-            // Clean up file resources
-            if ($this->fp !== false && is_resource($this->fp)) fclose($this->fp);
-
-            //var_dump("response:", $this->response);
-            return $this->response;
-        }
-
-
-        private function __sortMetaHeadersCmp($a, $b)
-        {
-            $lenA = strpos($a, ':');
-            $lenB = strpos($b, ':');
-            $minLen = min($lenA, $lenB);
-            $ncmp = strncmp($a, $b, $minLen);
-            if ($lenA == $lenB) return $ncmp;
-            if (0 == $ncmp) return $lenA < $lenB ? -1 : 1;
-            return $ncmp;
-        }
-
-
-        private function __responseWriteCallback(&$curl, &$data)
-        {
-            if (in_array($this->response->code, array(200, 206)) && $this->fp !== false)
-                return fwrite($this->fp, $data);
-            else
-                $this->response->body .= $data;
-            return strlen($data);
-        }
-
-
-        private function __responseHeaderCallback($curl, $data)
-        {
-            if (($strlen = strlen($data)) <= 2) return $strlen;
-            if (substr($data, 0, 4) == 'HTTP')
-                $this->response->code = (int)substr($data, 9, 3);
-            else
-            {
-                $data = trim($data);
-                if (strpos($data, ': ') === false) return $strlen;
-                list($header, $value) = explode(': ', $data, 2);
-                if ($header == 'Last-Modified')
-                    $this->response->headers['time'] = strtotime($value);
-                elseif ($header == 'Date')
-                    $this->response->headers['date'] = strtotime($value);
-                elseif ($header == 'Content-Length')
-                    $this->response->headers['size'] = (int)$value;
-                elseif ($header == 'Content-Type')
-                    $this->response->headers['type'] = $value;
-                elseif ($header == 'ETag')
-                    $this->response->headers['hash'] = $value{0} == '"' ? substr($value, 1, -1) : $value;
-                elseif (preg_match('/^x-sws-(?:account|container|object)-read$/i', $header))
-                    $this->response->headers['acl'] = $value;
-                elseif (preg_match('/^x-sws-(?:account|container|object)-meta-(.*)$/i', $header))
-                    $this->response->headers[strtolower($header)] = $value;
-                elseif (preg_match('/^x-sws-(?:account|container|object)-(.*)$/i', $header, $m))
-                    $this->response->headers[strtolower($m[1])] = $value;
-            }
-            return $strlen;
-        }
-
+        $this->headers['Host'] = $this->endpoint;
+        $this->headers['Date'] = gmdate('D, d M Y H:i:s T');
+        $this->response = new \STDClass;
+        $this->response->error = false;
+        $this->response->body = null;
+        $this->response->headers = array();
     }
+
+
+    public function setParameter($key, $value)
+    {
+        $this->parameters[$key] = $value;
+    }
+
+
+    public function setHeader($key, $value)
+    {
+        $this->headers[$key] = $value;
+    }
+
+
+    public function setSwsHeader($key, $value)
+    {
+        $this->swsHeaders[$key] = $value;
+    }
+
+
+    public function getResponse()
+    {
+        $query = '';
+        if (sizeof($this->parameters) > 0)
+        {
+            $query = substr($this->uri, -1) !== '?' ? '?' : '&';
+            foreach ($this->parameters as $var => $value)
+                if ($value == null || $value == '') $query .= $var.'&';
+                else $query .= $var.'='.rawurlencode($value).'&';
+            $query = substr($query, 0, -1);
+            $this->uri .= $query;
+            $this->resource .= $query;
+        }
+        $url = (Storage::$useSSL ? 'https://' : 'http://') . ($this->headers['Host'] !== '' ? $this->headers['Host'] : $this->endpoint) . $this->uri;
+
+        //var_dump('uri: ' . $this->uri, 'url: ' . $url, 'resource: ' . $this->resource);
+
+        // Basic setup
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_USERAGENT, 'Storage/php');
+
+        if (Storage::$useSSL)
+        {
+            // Set protocol version
+            curl_setopt($curl, CURLOPT_SSLVERSION, Storage::$useSSLVersion);
+
+            // SSL Validation can now be optional for those with broken OpenSSL installations
+            curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, Storage::$useSSLValidation ? 2 : 0);
+            curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, Storage::$useSSLValidation ? 1 : 0);
+        }
+
+        curl_setopt($curl, CURLOPT_URL, $url);
+
+        if (Storage::$proxy != null && isset(Storage::$proxy['host']))
+        {
+            curl_setopt($curl, CURLOPT_PROXY, Storage::$proxy['host']);
+            curl_setopt($curl, CURLOPT_PROXYTYPE, Storage::$proxy['type']);
+            if (isset(Storage::$proxy['user'], Storage::$proxy['pass']) && Storage::$proxy['user'] != null && S3::$proxy['pass'] != null)
+                curl_setopt($curl, CURLOPT_PROXYUSERPWD, sprintf('%s:%s', Storage::$proxy['user'], Storage::$proxy['pass']));
+        }
+
+        // Headers
+        $headers = array(); $sae = array();
+        foreach ($this->swsHeaders as $header => $value)
+            if (strlen($value) > 0) $headers[] = $header.': '.$value;
+        foreach ($this->headers as $header => $value)
+            if (strlen($value) > 0) $headers[] = $header.': '.$value;
+
+        foreach ($this->swsHeaders as $header => $value)
+            if (strlen($value) > 0) $sae[] = strtolower($header).':'.$value;
+
+        if (sizeof($sae) > 0)
+        {
+            usort($sae, array(&$this, '__sortMetaHeadersCmp'));
+            $sae= "\n".implode("\n", $sae);
+        } else $sae = '';
+
+        if (Storage::hasAuth())
+        {
+            $headers[] = 'Authorization: ' . Storage::__getSignature(
+                $this->verb."\n".
+                $this->headers['Date'].$sae."\n".
+                $this->resource
+            );
+        }
+
+        //var_dump("headers:", $headers);
+
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_HEADER, false);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, false);
+        curl_setopt($curl, CURLOPT_WRITEFUNCTION, array(&$this, '__responseWriteCallback'));
+        curl_setopt($curl, CURLOPT_HEADERFUNCTION, array(&$this, '__responseHeaderCallback'));
+        curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
+
+        // Request types
+        switch ($this->verb)
+        {
+        case 'GET': break;
+        case 'PUT': case 'POST':
+            if ($this->fp !== false)
+            {
+                curl_setopt($curl, CURLOPT_PUT, true);
+                curl_setopt($curl, CURLOPT_INFILE, $this->fp);
+                if ($this->size >= 0)
+                    curl_setopt($curl, CURLOPT_INFILESIZE, $this->size);
+            }
+            elseif ($this->data !== false)
+            {
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->verb);
+                curl_setopt($curl, CURLOPT_POSTFIELDS, $this->data);
+            }
+            else
+                curl_setopt($curl, CURLOPT_CUSTOMREQUEST, $this->verb);
+            break;
+        case 'HEAD':
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'HEAD');
+            curl_setopt($curl, CURLOPT_NOBODY, true);
+            break;
+        case 'DELETE':
+            curl_setopt($curl, CURLOPT_CUSTOMREQUEST, 'DELETE');
+            break;
+        default: break;
+        }
+
+        // Execute, grab errors
+        if (curl_exec($curl))
+            $this->response->code = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        else
+            $this->response->error = array(
+                'code' => curl_errno($curl),
+                'message' => curl_error($curl),
+            );
+
+        @curl_close($curl);
+
+        // Clean up file resources
+        if ($this->fp !== false && is_resource($this->fp)) fclose($this->fp);
+
+        //var_dump("response:", $this->response);
+        return $this->response;
+    }
+
+
+    private function __sortMetaHeadersCmp($a, $b)
+    {
+        $lenA = strpos($a, ':');
+        $lenB = strpos($b, ':');
+        $minLen = min($lenA, $lenB);
+        $ncmp = strncmp($a, $b, $minLen);
+        if ($lenA == $lenB) return $ncmp;
+        if (0 == $ncmp) return $lenA < $lenB ? -1 : 1;
+        return $ncmp;
+    }
+
+
+    private function __responseWriteCallback(&$curl, &$data)
+    {
+        if (in_array($this->response->code, array(200, 206)) && $this->fp !== false)
+            return fwrite($this->fp, $data);
+        else
+            $this->response->body .= $data;
+        return strlen($data);
+    }
+
+
+    private function __responseHeaderCallback($curl, $data)
+    {
+        if (($strlen = strlen($data)) <= 2) return $strlen;
+        if (substr($data, 0, 4) == 'HTTP')
+            $this->response->code = (int)substr($data, 9, 3);
+        else
+        {
+            $data = trim($data);
+            if (strpos($data, ': ') === false) return $strlen;
+            list($header, $value) = explode(': ', $data, 2);
+            if ($header == 'Last-Modified')
+                $this->response->headers['time'] = strtotime($value);
+            elseif ($header == 'Date')
+                $this->response->headers['date'] = strtotime($value);
+            elseif ($header == 'Content-Length')
+                $this->response->headers['size'] = (int)$value;
+            elseif ($header == 'Content-Type')
+                $this->response->headers['type'] = $value;
+            elseif ($header == 'ETag')
+                $this->response->headers['hash'] = $value{0} == '"' ? substr($value, 1, -1) : $value;
+            elseif (preg_match('/^x-sws-(?:account|container|object)-read$/i', $header))
+                $this->response->headers['acl'] = $value;
+            elseif (preg_match('/^x-sws-(?:account|container|object)-meta-(.*)$/i', $header))
+                $this->response->headers[strtolower($header)] = $value;
+            elseif (preg_match('/^x-sws-(?:account|container|object)-(.*)$/i', $header, $m))
+                $this->response->headers[strtolower($m[1])] = $value;
+        }
+        return $strlen;
+    }
+
+}
 
 /**
  * Storage异常类
