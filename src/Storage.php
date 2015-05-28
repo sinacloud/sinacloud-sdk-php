@@ -2,6 +2,14 @@
 
 namespace sinacloud\sae;
 
+if (defined('SAE_APPNAME')) {
+    define('DEFAULT_STORAGE_ENDPOINT', 'api.i.sinas3.com:81');
+    define('DEFAULT_USE_SSL', false);
+} else {
+    define('DEFAULT_STORAGE_ENDPOINT', 'api.sinas3.com');
+    define('DEFAULT_USE_SSL', true);
+}
+
 /**
  * SAE Storage PHP客户端
  *
@@ -94,7 +102,7 @@ class Storage
      */
     public static $defDelimiter = null;
 
-    public static $endpoint = 'api.i.sinas3.com:81';
+    public static $endpoint = DEFAULT_STORAGE_ENDPOINT;
 
     public static $proxy = null;
 
@@ -105,7 +113,7 @@ class Storage
      * @access public
      * @static
      */
-    public static $useSSL = false;
+    public static $useSSL = DEFAULT_USE_SSL;
 
     /**
      * 是否验证SSL证书
@@ -114,7 +122,7 @@ class Storage
      * @access public
      * @static
      */
-    public static $useSSLValidation = true;
+    public static $useSSLValidation = false;
 
     /**
      * 使用的SSL版本
@@ -143,7 +151,8 @@ class Storage
      * @param string $endpoint SAE Storage的endpoint
      * @return void
      */
-    public function __construct($accessKey = null, $secretKey = null, $useSSL = false, $endpoint = 'api.i.sinas3.com:81')
+    public function __construct($accessKey = null, $secretKey = null,
+            $useSSL = DEFAULT_STORAGE_ENDPOINT, $endpoint = DEFAULT_STORAGE_ENDPOINT)
     {
         if ($accessKey !== null && $secretKey !== null) {
             self::setAuth($accessKey, $secretKey);
@@ -923,7 +932,7 @@ final class StorageRequest
         public $response;
 
 
-        function __construct($verb, $account, $bucket = '', $uri = '', $endpoint = 'api.i.sinas3.com:81')
+        function __construct($verb, $account, $bucket = '', $uri = '', $endpoint = DEFAULT_STORAGE_ENDPOINT)
         {
             $this->endpoint = $endpoint;
             $this->verb = $verb;
@@ -995,10 +1004,6 @@ final class StorageRequest
                 // SSL Validation can now be optional for those with broken OpenSSL installations
                 curl_setopt($curl, CURLOPT_SSL_VERIFYHOST, Storage::$useSSLValidation ? 2 : 0);
                 curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, Storage::$useSSLValidation ? 1 : 0);
-
-                if (Storage::$sslKey !== null) curl_setopt($curl, CURLOPT_SSLKEY, Storage::$sslKey);
-                if (Storage::$sslCert !== null) curl_setopt($curl, CURLOPT_SSLCERT, Storage::$sslCert);
-                if (Storage::$sslCACert !== null) curl_setopt($curl, CURLOPT_CAINFO, Storage::$sslCACert);
             }
 
             curl_setopt($curl, CURLOPT_URL, $url);
