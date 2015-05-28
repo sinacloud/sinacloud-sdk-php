@@ -957,7 +957,7 @@ final class StorageRequest
                 $headers[] = 'Authorization: ' . Storage::__getSignature(
                     $this->verb."\n".
                     $this->headers['Date'].$sae."\n".
-                    '/' . substr($this->uri, $this->strip_prefix_size)
+                    str_replace(' ', '%20', rawurldecode('/' . substr($this->uri, $this->strip_prefix_size)))
                 );
             }
 
@@ -1007,7 +1007,6 @@ final class StorageRequest
                 $this->response->error = array(
                     'code' => curl_errno($curl),
                     'message' => curl_error($curl),
-                    'resource' => $this->resource
                 );
 
             @curl_close($curl);
@@ -1238,7 +1237,7 @@ final class StorageWrapper extends Storage {
 
     private function __getURL($path) {
         $this->url = parse_url($path);
-        if (!isset($this->url['scheme']) || $this->url['scheme'] !== 'stor') return $this->url;
+        if (!isset($this->url['scheme']) || $this->url['scheme'] !== 'storage') return $this->url;
         if (isset($this->url['user'], $this->url['pass'])) self::setAuth($this->url['user'], $this->url['pass']);
         $this->url['path'] = isset($this->url['path']) ? substr($this->url['path'], 1) : '';
     }
