@@ -3,8 +3,75 @@
 /**
  * SAE Storage PHP客户端
  *
+ * 我们可以通过两种方式来调用Storage的接口，面向对象的方式和通过静态方法。
+ *
+ * <code>
+ * <?php
+ * //
+ * use sinacloud\sae\Storage as Storage;
+ *
+ * // 面向对象方式(e,g; $s3->getObject(...)):
+ * $s = new Storage($AccessKey, $SecretKey);
+ *
+ * // 静态方法(e,g; Storage::getObject(...)):
+ * Storage::setAuth($AccessKey, $SecretKey);
+ * </code>
+ *
+ * 其中AccessKey时应用的“应用名:应用AccessKey”
+ *
+ * Object操作：
+ *
+ * <code>
+ * <?php
+ * // 上传一个文件
+ * Storage::putObject(Storage::inputFile($file, false), $bucketName, $uploadName)
+ *
+ * // 上传一个字符串，并且设置其Content-type
+ * Storage::putObject($string, $bucketName, $uploadName, Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'))
+ *
+ * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）
+ * Storage::putObject(Storage::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, S3::ACL_PUBLIC_READ)
+ *
+ * // 读取一个Object
+ * Storage::getObject($bucketName, $uploadName)
+ *
+ * // 将Object保存为一个本地文件
+ * Storage::getObject($bucketName, $uploadName, $saveName)
+ *
+ * // 将Object保存到一个打开的文件句柄里
+ * Storage::getObject($bucketName, $uploadName, fopen('savefile.txt', 'wb'))
+ *
+ * // 删除一个Object
+ * Storage::deleteObject($bucketName, $uploadName)
+ * </code>
+ *
+ * Bucket操作：
+ *
+ * <code>
+ * <?php
+ * // 获取Bucket列表
+ * Storage::listBuckets()  // Simple bucket list
+ * Storage::listBuckets(true)  // Detailed bucket list
+ *
+ * // 创建一个Bucket
+ * Storage::putBucket($bucketName)
+ *
+ * // 获取Bucket中的Object对象列表
+ * Storage::getBucket($bucketName)
+ *
+ * // Storage可以作为一个伪文件系统用，在getBucket时，当prefix的最后一个字符是/，delimiter为/时，
+ * // 可以获取prefix这个路径下对象
+ * // 比如下面的这行代码可以获取a/目录下所有的文件（Object）
+ * Storage::getBucket($bucketName, 'a/', null, 10, '/')
+ *
+ * // 删除一个空的Bucket
+ * Storage::deleteBucket($bucketName)
+ * </code>
+ *
  * @copyright Copyright (c) 2015, SINA, All rights reserved.
  */
+
+namespace sinacloud\sae;
 
 class Storage
 {
@@ -21,7 +88,7 @@ class Storage
      *
      * @var string
      * @access public
-     * @static 
+     * @static
      */
     public static $defDelimiter = null;
 
@@ -425,7 +492,7 @@ class Storage
      * @param mixed $input Input data
      * @param string $bucket Bucket name
      * @param string $uri Object URI
-     * @param array $metaHeaders x-sws-object-meta-* header数组 
+     * @param array $metaHeaders x-sws-object-meta-* header数组
      * @param array $requestHeaders Array of request headers or content type as a string
      * @return boolean
      */
@@ -603,8 +670,8 @@ class Storage
     /**
      * 获取一个Object的信息
      *
-     * @param string $bucket Bucket名称 
-     * @param string $uri Object名称 
+     * @param string $bucket Bucket名称
+     * @param string $uri Object名称
      * @param boolean $returnInfo 是否返回Object的详细信息
      * @return mixed | false
      */
@@ -762,7 +829,7 @@ class Storage
                 $rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
             return false;
         }
-        return $rest->code !== 404 ? $rest->headers : false; 
+        return $rest->code !== 404 ? $rest->headers : false;
     }
 
 
@@ -772,7 +839,7 @@ class Storage
             'jpg' => 'image/jpeg', 'jpeg' => 'image/jpeg', 'gif' => 'image/gif',
             'png' => 'image/png', 'ico' => 'image/x-icon', 'pdf' => 'application/pdf',
             'tif' => 'image/tiff', 'tiff' => 'image/tiff', 'svg' => 'image/svg+xml',
-            'svgz' => 'image/svg+xml', 'swf' => 'application/x-shockwave-flash', 
+            'svgz' => 'image/svg+xml', 'swf' => 'application/x-shockwave-flash',
             'zip' => 'application/zip', 'gz' => 'application/x-gzip',
             'tar' => 'application/x-tar', 'bz' => 'application/x-bzip',
             'bz2' => 'application/x-bzip2',  'rar' => 'application/x-rar-compressed',
@@ -863,13 +930,13 @@ final class StorageRequest
                 $this->resource = $this->resource . '/'. $bucket;
             }
             if ($uri !== '') {
-                $this->uri .= '/'.str_replace('%2F', '/', rawurlencode($uri)); 
+                $this->uri .= '/'.str_replace('%2F', '/', rawurlencode($uri));
                 $this->resource = $this->resource . '/'. str_replace(' ', '%20', $uri);
             }
 
             $this->headers['Host'] = $this->endpoint;
             $this->headers['Date'] = gmdate('D, d M Y H:i:s T');
-            $this->response = new STDClass;
+            $this->response = new \STDClass;
             $this->response->error = false;
             $this->response->body = null;
             $this->response->headers = array();
@@ -935,7 +1002,7 @@ final class StorageRequest
             {
                 curl_setopt($curl, CURLOPT_PROXY, Storage::$proxy['host']);
                 curl_setopt($curl, CURLOPT_PROXYTYPE, Storage::$proxy['type']);
-                if (isset(Storage::$proxy['user'], Storage::$proxy['pass']) && S3::$proxy['user'] != null && S3::$proxy['pass'] != null)
+                if (isset(Storage::$proxy['user'], Storage::$proxy['pass']) && Storage::$proxy['user'] != null && S3::$proxy['pass'] != null)
                     curl_setopt($curl, CURLOPT_PROXYUSERPWD, sprintf('%s:%s', Storage::$proxy['user'], Storage::$proxy['pass']));
             }
 
@@ -1077,9 +1144,9 @@ final class StorageRequest
     }
 
 /**
- * Storage异常类 
+ * Storage异常类
  */
-class StorageException extends Exception {
+class StorageException extends \Exception {
     /**
      * 构造函数
      *
@@ -1254,4 +1321,4 @@ final class StorageWrapper extends Storage {
             $acl = self::ACL_PUBLIC_READ; //$acl = self::ACL_PUBLIC_READ_WRITE;
         return $acl;
     }
-} stream_wrapper_register('storage', 'StorageWrapper');
+} stream_wrapper_register('storage', 'sinacloud\sae\StorageWrapper');
