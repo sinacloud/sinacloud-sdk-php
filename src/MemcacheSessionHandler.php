@@ -29,7 +29,7 @@ class MemcacheSessionHandler implements SessionHandlerInterface
 
     function read($id)
     {
-        return (string)memcache_get($this->mc, $id);
+        return memcache_get($this->mc, $id);
     }
 
     function write($id, $data)
