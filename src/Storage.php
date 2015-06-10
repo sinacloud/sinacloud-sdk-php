@@ -21,13 +21,15 @@ if (defined('SAE_APPNAME')) {
  * <?php
  * use sinacloud\sae\Storage as Storage;
  *
- * // 面向对象方式(e,g; $s3->getObject(...)):
+ * // 面向对象方式(e,g; $s->getObject(...)):
  * $s = new Storage($AccessKey, $SecretKey);
  *
  * // 静态方法(e,g; Storage::getObject(...)):
  * Storage::setAuth($AccessKey, $SecretKey);
  * ?>
  * ```
+ *
+ * 在SAE上可以不传AccessKey和SecretKey参数，默认为当前应用的AccessKey和SecretKey。
  *
  * 其中AccessKey是应用的 *应用名:应用AccessKey*
  *
@@ -42,7 +44,7 @@ if (defined('SAE_APPNAME')) {
  * Storage::putObject($string, $bucketName, $uploadName, Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'))
  *
  * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）
- * Storage::putObject(Storage::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, S3::ACL_PUBLIC_READ)
+ * Storage::putObject(Storage::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, Storage::ACL_PUBLIC_READ)
  *
  * // 读取一个Object
  * Storage::getObject($bucketName, $uploadName)
@@ -1012,7 +1014,7 @@ final class StorageRequest
         {
             curl_setopt($curl, CURLOPT_PROXY, Storage::$proxy['host']);
             curl_setopt($curl, CURLOPT_PROXYTYPE, Storage::$proxy['type']);
-            if (isset(Storage::$proxy['user'], Storage::$proxy['pass']) && Storage::$proxy['user'] != null && S3::$proxy['pass'] != null)
+            if (isset(Storage::$proxy['user'], Storage::$proxy['pass']) && Storage::$proxy['user'] != null && Storage::$proxy['pass'] != null)
                 curl_setopt($curl, CURLOPT_PROXYUSERPWD, sprintf('%s:%s', Storage::$proxy['user'], Storage::$proxy['pass']));
         }
 
