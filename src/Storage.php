@@ -154,7 +154,7 @@ class Storage
      * @return void
      */
     public function __construct($accessKey = null, $secretKey = null,
-            $useSSL = DEFAULT_STORAGE_ENDPOINT, $endpoint = DEFAULT_STORAGE_ENDPOINT)
+            $useSSL = DEFAULT_USE_SSL, $endpoint = DEFAULT_STORAGE_ENDPOINT)
     {
         if ($accessKey !== null && $secretKey !== null) {
             self::setAuth($accessKey, $secretKey);
