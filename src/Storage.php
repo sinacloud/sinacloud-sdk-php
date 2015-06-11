@@ -334,7 +334,8 @@ class Storage
 
             if ($objects) {
                 $result = array_merge($result, $objects);
-                $marker = end($objects)['name'];
+                $marker = end($objects);
+                $marker = $marker['name'];
             }
         } while ($objects && count($objects) == $max_keys && $limit > 0);
 
