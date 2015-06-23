@@ -299,7 +299,6 @@ class Storage
     public static function getBucket($bucket, $prefix = null, $marker = null, $limit = 1000, $delimiter = null)
     {
         $result = array();
-        $marker = null;
 
         do {
             $rest = new StorageRequest('GET', self::$__account, $bucket, '', self::$endpoint);
