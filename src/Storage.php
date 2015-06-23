@@ -618,7 +618,7 @@ class Storage
      * 修改一个Object的属性
      *
      * @param string $bucket Bucket名称
-     * @param constant $acl Bucket的ACL，null表示不变
+     * @param constant $uri Object名称
      * @param array $metaHeaders x-sws-container-meta-* header数组
      * @param array $requestHeaders 其它header属性
      * @return boolean
@@ -635,11 +635,11 @@ class Storage
 
         $rest = $rest->getResponse();
 
-        if ($rest->error === false && ($rest->code !== 201 && $rest->code !== 204))
+        if ($rest->error === false && ($rest->code !== 202))
             $rest->error = array('code' => $rest->code, 'message' => 'Unexpected HTTP status');
         if ($rest->error !== false)
         {
-            self::__triggerError(sprintf("Storage::postObject({$bucket}, {$acl}): [%s] %s",
+            self::__triggerError(sprintf("Storage::postObject({$bucket}, {$uri}): [%s] %s",
                 $rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
             return false;
         }
