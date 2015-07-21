@@ -593,7 +593,7 @@ class Storage
      */
     public static function putObjectFile($file, $bucket, $uri, $metaHeaders = array(), $contentType = null)
     {
-        return self::putObject(self::inputFile($file), $bucket, $uri, $acl, $metaHeaders, $contentType);
+        return self::putObject(self::inputFile($file), $bucket, $uri, $metaHeaders, $contentType);
     }
 
 
@@ -610,7 +610,7 @@ class Storage
      */
     public static function putObjectString($string, $bucket, $uri, $metaHeaders = array(), $contentType = 'text/plain')
     {
-        return self::putObject($string, $bucket, $uri, $acl, $metaHeaders, $contentType);
+        return self::putObject($string, $bucket, $uri, $metaHeaders, $contentType);
     }
 
     /**
