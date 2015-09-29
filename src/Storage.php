@@ -785,7 +785,7 @@ class Storage
      */
     public static function getUrl($bucket, $uri)
     {
-        return "http://" . self::$__account . '-' . $bucket . '.stor.sinaapp.com/' . urlencode($uri);
+        return "http://" . self::$__account . '-' . $bucket . '.stor.sinaapp.com/' . rawurlencode($uri);
     }
 
     /**
@@ -796,7 +796,7 @@ class Storage
      */
     public static function getCdnUrl($bucket, $uri)
     {
-        return "http://". self::$__account . '.sae.sinacn.com/.app-stor/' . $bucket . '/' . urlencode($uri);
+        return "http://". self::$__account . '.sae.sinacn.com/.app-stor/' . $bucket . '/' . rawurlencode($uri);
     }
 
     /**
