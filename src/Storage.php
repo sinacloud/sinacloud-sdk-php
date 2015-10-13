@@ -16,6 +16,7 @@ if (defined('SAE_APPNAME')) {
  * @copyright Copyright (c) 2015, SINA, All rights reserved.
  *
  * 我们可以通过两种方式来调用Storage的接口，面向对象的方式和通过静态方法。
+ * 注意，以下代码中的$AccessKey是应用的 *应用名:应用AccessKey* 。
  *
  * ```php
  * <?php
@@ -24,14 +25,14 @@ if (defined('SAE_APPNAME')) {
  * // 面向对象方式(e,g; $s->getObject(...)):
  * $s = new Storage($AccessKey, $SecretKey);
  *
+ * // 在SAE运行环境中时可以不传认证信息，默认会从应用的环境变量中取
+ * $s = new Storage();
+ *
  * // 静态方法(e,g; Storage::getObject(...)):
+ * // 使用静态方法调用的时候，必须首先调用以下接口
  * Storage::setAuth($AccessKey, $SecretKey);
  * ?>
  * ```
- *
- * 在SAE上可以不传AccessKey和SecretKey参数，默认为当前应用的AccessKey和SecretKey。
- *
- * 其中AccessKey是应用的 *应用名:应用AccessKey*
  *
  * **Object操作**
  *
