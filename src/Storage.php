@@ -59,7 +59,7 @@ if (defined('SAE_APPNAME')) {
  * // 删除一个Object
  * Storage::deleteObject($bucketName, $uploadName)
  *
- * // 给私有Object生成一个外网能够临时访问的URL（meta中header Temp-Url-Key的值复杂度越高URL链接越安全）
+ * // 给私有Object生成一个外网能够临时访问的URL（需要先设置Account meta中的header Temp-Url-Key,此值复杂度越高URL链接越安全）
  * $metaHeader = array("Temp-Url-Key"=>"b3968d0207b54ece87cccc06515a89d4")
  * Storage::postAccount($metaHeader)
  * Storage::getTempUrl($bucket, $uri, $method, $seconds, $key) 
