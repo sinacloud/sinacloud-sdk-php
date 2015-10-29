@@ -58,6 +58,11 @@ if (defined('SAE_APPNAME')) {
  *
  * // 删除一个Object
  * Storage::deleteObject($bucketName, $uploadName)
+ *
+ * // 给私有Object生成一个外网能够临时访问的URL（meta中header Temp-Url-Key的值复杂度越高URL链接越安全）
+ * $metaHeader = array("Temp-Url-Key"=>"b3968d0207b54ece87cccc06515a89d4")
+ * Storage::postAccount($metaHeader)
+ * Storage::getTempUrl($bucket, $uri, $method, $seconds, $key) 
  * ?>
  * ```
  *
@@ -787,6 +792,25 @@ class Storage
     public static function getUrl($bucket, $uri)
     {
         return "http://" . self::$__account . '-' . $bucket . '.stor.sinaapp.com/' . rawurlencode($uri);
+    }
+
+     /**
+     * 获取一个Object的外网临时访问URL
+     *
+     * @param string $bucket Bucket名称
+     * @param string $uri Object名称
+     * @param string $method Http请求的方法，有GET, PUT, DELETE等
+     * @param int $seconds 设置这个此URL的过期时间，单位是秒
+     * @param string $key 用hmac算法加密的Secret Key。此值取自Account的属性信息中header Temp-URL-Key
+     */
+    public static function getTempUrl($bucket, $uri, $method, $seconds, $key) 
+    {
+        $expires = (int)(time() + $seconds);
+        $path = "/v1/SAE_" . self::$__account . "/" . $bucket . "/" . $uri;
+        $hmac_body = $method . "\n" . $expires . "\n" . $path;
+        $sig = hash_hmac('sha1', $hmac_body, $key);
+        $parameter = http_build_query(array("temp_url_sig" => $sig, "temp_url_expires" => $expires));
+        return "http://" . self::$__account . '-' . $bucket . '.stor.sinaapp.com/' . rawurlencode($uri) . "?" . $parameter;
     }
 
     /**
