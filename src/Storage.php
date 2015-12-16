@@ -15,22 +15,17 @@ if (defined('SAE_APPNAME')) {
  *
  * @copyright Copyright (c) 2015, SINA, All rights reserved.
  *
- * 我们可以通过两种方式来调用Storage的接口，面向对象的方式和通过静态方法。
  * 注意，以下代码中的$AccessKey是应用的 *应用名:应用AccessKey* 。
  *
  * ```php
  * <?php
  * use sinacloud\sae\Storage as Storage;
  *
- * // 面向对象方式(e,g; $s->getObject(...)):
- * $s = new Storage($AccessKey, $SecretKey);
- *
  * // 在SAE运行环境中时可以不传认证信息，默认会从应用的环境变量中取
  * $s = new Storage();
  *
- * // 静态方法(e,g; Storage::getObject(...)):
- * // 使用静态方法调用的时候，必须首先调用以下接口
- * Storage::setAuth($AccessKey, $SecretKey);
+ * // 如果不在SAE运行环境或者要连非本应用的storage，需要传入所连应用的AccessKey和SecretKey
+ * $s = new Storage($AccessKey, $SecretKey);
  * ?>
  * ```
  *
@@ -39,28 +34,28 @@ if (defined('SAE_APPNAME')) {
  * ```php
  * <?php
  * // 上传一个文件
- * Storage::putObject(Storage::inputFile($file), $bucketName, $uploadName)
+ * $s->putObject($s->inputFile($file), $bucketName, $uploadName)
  *
  * // 上传一个字符串，并且设置其Content-type
- * Storage::putObject($string, $bucketName, $uploadName, Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'))
+ * $s->putObject($string, $bucketName, $uploadName, Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'))
  *
  * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）
- * Storage::putObject(Storage::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, Storage::ACL_PUBLIC_READ)
+ * $s->putObject(Storage::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, Storage::ACL_PUBLIC_READ)
  *
  * // 读取一个Object
- * Storage::getObject($bucketName, $uploadName)
+ * $s->getObject($bucketName, $uploadName)
  *
  * // 将Object保存为一个本地文件
- * Storage::getObject($bucketName, $uploadName, $saveName)
+ * $s->getObject($bucketName, $uploadName, $saveName)
  *
  * // 将Object保存到一个打开的文件句柄里
- * Storage::getObject($bucketName, $uploadName, fopen('savefile.txt', 'wb'))
+ * $s->getObject($bucketName, $uploadName, fopen('savefile.txt', 'wb'))
  *
  * // 删除一个Object
- * Storage::deleteObject($bucketName, $uploadName)
+ * $s->deleteObject($bucketName, $uploadName)
  *
  * // 给私有Object生成一个外网能够临时访问的URL
- * Storage::getTempUrl($bucket, $uri, $method, $seconds) 
+ * $s->getTempUrl($bucket, $uri, $method, $seconds) 
  * ?>
  * ```
  *
@@ -69,22 +64,31 @@ if (defined('SAE_APPNAME')) {
  * ```php
  * <?php
  * // 获取Bucket列表
- * Storage::listBuckets()  // Simple bucket list
- * Storage::listBuckets(true)  // Detailed bucket list
+ * $s->listBuckets()  // Simple bucket list
+ * $s->listBuckets(true)  // Detailed bucket list
  *
  * // 创建一个Bucket
- * Storage::putBucket($bucketName)
+ * $s->putBucket($bucketName)
  *
  * // 获取Bucket中的Object对象列表
- * Storage::getBucket($bucketName)
+ * $s->getBucket($bucketName)
  *
  * // Storage可以作为一个伪文件系统用，在getBucket时，当prefix的最后一个字符是/，delimiter为/时，
  * // 可以获取prefix这个路径下对象
  * // 比如下面的这行代码可以获取a/目录下所有的文件（Object）
- * Storage::getBucket($bucketName, 'a/', null, 10, '/')
+ * $s->getBucket($bucketName, 'a/', null, 10, '/')
  *
  * // 删除一个空的Bucket
- * Storage::deleteBucket($bucketName)
+ * $s->deleteBucket($bucketName)
+ * ?>
+ * ```
+ *
+ * **调试模式**
+ *
+ * ```php
+ * <?php
+ * // 开启调试模式，出问题的时候方便定位问题
+ * $s->setExceptions(true);
  * ?>
  * ```
  */
