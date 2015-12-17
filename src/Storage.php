@@ -15,8 +15,6 @@ if (defined('SAE_APPNAME')) {
  *
  * @copyright Copyright (c) 2015, SINA, All rights reserved.
  *
- * 注意，以下代码中的$AccessKey是应用的 *应用名:应用AccessKey* 。
- *
  * ```php
  * <?php
  * use sinacloud\sae\Storage as Storage;
@@ -24,7 +22,7 @@ if (defined('SAE_APPNAME')) {
  * // 在SAE运行环境中时可以不传认证信息，默认会从应用的环境变量中取
  * $s = new Storage();
  *
- * // 如果不在SAE运行环境或者要连非本应用的storage，需要传入所连应用的AccessKey和SecretKey
+ * // 如果不在SAE运行环境或者要连非本应用的storage，需要传入所连应用的"应用名:应用AccessKey"和"应用SecretKey"
  * $s = new Storage($AccessKey, $SecretKey);
  * ?>
  * ```
@@ -88,7 +86,7 @@ if (defined('SAE_APPNAME')) {
  * ```php
  * <?php
  * // 开启调试模式，出问题的时候方便定位问题
- * $s->setExceptions(true);
+ * $s->setExceptions(true)
  * ?>
  * ```
  */
