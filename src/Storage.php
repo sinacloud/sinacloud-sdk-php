@@ -141,7 +141,7 @@ class Storage
      * @access public
      * @static
      */
-    public static $useSSLVersion = CURL_SSLVERSION_TLSv1;
+    public static $useSSLVersion = 1;
 
     /**
      * 出现错误的时候是否使用PHP Exception（默认使用trigger_error纪录错误）
