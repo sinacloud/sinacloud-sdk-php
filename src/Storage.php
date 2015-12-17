@@ -23,7 +23,7 @@ if (defined('SAE_APPNAME')) {
  * $s = new Storage();
  *
  * // 如果不在SAE运行环境或者要连非本应用的storage，需要传入所连应用的"应用名:应用AccessKey"和"应用SecretKey"
- * $s = new Storage($AccessKey, $SecretKey);
+ * $s = new Storage("$AppName:$AccessKey", $SecretKey);
  * ?>
  * ```
  *
@@ -85,7 +85,7 @@ if (defined('SAE_APPNAME')) {
  *
  * ```php
  * <?php
- * // 开启调试模式，出问题的时候方便定位问题
+ * // 开启调试模式，出问题的时候方便定位问题，设置为true后遇到错误的时候会抛出异常而不是写一条warning信息到日志。
  * $s->setExceptions(true)
  * ?>
  * ```
