@@ -69,8 +69,8 @@ if (defined('SAE_APPNAME')) {
  * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）
  * $s->putObject(Storage::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, Storage::ACL_PUBLIC_READ);
  *
- * // 读取一个Object
- * $s->getObject($bucketName, $uploadName);
+ * // 读取一个Object，输出的为此次请求的详细信息，包括状态码，object内容等
+ * var_dump($s->getObject($bucketName, $uploadName));
  *
  * // 将Object保存为一个本地文件
  * $s->getObject($bucketName, $uploadName, $saveName);
