@@ -49,10 +49,10 @@ if (defined('SAE_APPNAME')) {
  *
  * **Object上传操作**
  *
- * // 把本地文件上传到test这个Bucket，设置此Object名为1.txt
+ * // 把$_FILES全局变量中的缓存文件上传到test这个Bucket，设置此Object名为1.txt
  * $s->putObjectFile($_FILES['uploaded']['tmp_name'], "test", "1.txt");
  *
- * // 把本地文件上传到test这个Bucket，设置此Object名为sae/1.txt
+ * // 把$_FILES全局变量中的缓存文件上传到test这个Bucket，设置此Object名为sae/1.txt
  * $s->putObjectFile($_FILES['uploaded']['tmp_name'], "test", "sae/1.txt");
  *
  * // 上传一个字符串到test这个Bucket中，设置此Object名为string.txt，并且设置其Content-type
