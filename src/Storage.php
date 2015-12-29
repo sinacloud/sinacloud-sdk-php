@@ -21,68 +21,69 @@ if (defined('SAE_APPNAME')) {
  *
  * **类初始化**
  *
- * // 方法一：
- * $s = new Storage();  //在SAE运行环境中时可以不传认证信息，默认会从应用的环境变量中取
+ * // 方法一：在SAE运行环境中时可以不传认证信息，默认会从应用的环境变量中取
+ * $s = new Storage();
  *
- * // 方法二：
- * $s = new Storage("$AppName:$AccessKey", $SecretKey);  //如果不在SAE运行环境或者要连非本应用的storage，需要传入所连应用的"应用名:应用AccessKey"和"应用SecretKey"
- *
- * **变量定义**
- *
- * $bucketName = "test";  // 创建的bucket名称
- * $file = "/tmp/1.txt";  // 要上传的本地文件路径
- * $uploadName = "1.txt"; // 上传的文件在storage中的存放路径;也可以写成a/1.txt，即把文件上传到a目录中
- * $string = "This is sae.";  // 上传的字符串
- * $saveName = "/tmp/savefile.txt";  // 保存storage下载内容的本地文件路径 
- * $uri = "1.txt";  //给哪个object生成一个能临时访问的url
- * $method = "GET"; //设定哪种方法才能访问这个能临时访问的url
- * $seconds = 600;  //设定这个能临时访问的url的过期时间
+ * // 方法二：如果不在SAE运行环境或者要连非本应用的storage，需要传入所连应用的"应用名:应用AccessKey"和"应用SecretKey"
+ * $s = new Storage("$AppName:$AccessKey", $SecretKey);
  *
  * **Bucket操作**
  *
- * // 创建一个Bucket
- * $s->putBucket($bucketName);
+ * // 创建一个Bucket test
+ * $s->putBucket("test");
  *
  * // 获取Bucket列表
  * $s->listBuckets();  // Simple bucket list
  * $s->listBuckets(true);  // Detailed bucket list
  *
- * // 获取Bucket中的Object对象列表
- * $s->getBucket($bucketName);
+ * // 获取test这个Bucket中的Object对象列表
+ * $s->getBucket("test");
  *
  * // Storage可以作为一个伪文件系统用，在getBucket时，当prefix的最后一个字符是/，delimiter为/时，
  * // 可以获取prefix这个路径下对象
  * // 比如下面的这行代码可以获取a/目录下所有的文件（Object）
- * $s->getBucket($bucketName, 'a/', null, 10, '/');
+ * $s->getBucket("test", 'a/', null, 10, '/');
  *
- * // 删除一个空的Bucket
- * $s->deleteBucket($bucketName);
+ * // 删除一个空的Bucket test
+ * $s->deleteBucket("test");
  *
- * **Object操作**
+ * **Object上传操作**
  *
- * // 上传一个文件
- * $s->putObject($s->inputFile($file), $bucketName, $uploadName);
+ * // 把本地/tmp/1.txt文件上传到test这个Bucket，设置此Object名为1.txt
+ * $s->putObject($s->inputFile("/tmp/1.txt"), "test", "1.txt");
  *
- * // 上传一个字符串，并且设置其Content-type
- * $s->putObject($string, $bucketName, $uploadName, Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'));
+ * // 把本地/tmp/1.txt文件上传到test这个Bucket，设置此Object名为sae/1.txt
+ * $s->putObject($s->inputFile("/tmp/1.txt"), "test", "sae/1.txt");
  *
- * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）
- * $s->putObject(Storage::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, Storage::ACL_PUBLIC_READ);
+ * // 上传一个字符串到test这个Bucket中，设置此Object名为string.txt，并且设置其Content-type
+ * $s->putObject("This is string.", "test", "string.txt", Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'));
  *
- * // 读取一个Object，输出的为此次请求的详细信息，包括状态码，object内容等
- * var_dump($s->getObject($bucketName, $uploadName));
+ * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）到test这个Bucket中，设置此Object名为file.txt
+ * $s->putObject(Storage::inputResource(fopen("/tmp/1.txt", 'rb'), filesize("/tmp/1.txt")), "test", "file.txt", Storage::ACL_PUBLIC_READ);
  *
- * // 将Object保存为一个本地文件
- * $s->getObject($bucketName, $uploadName, $saveName);
+ * **Object下载操作**
  *
- * // 将Object保存到一个打开的文件句柄里
- * $s->getObject($bucketName, $uploadName, fopen($saveName, 'wb'));
+ * // 从test这个Bucket读取Object 1.txt，输出为此次请求的详细信息，包括状态码和1.txt的内容等
+ * var_dump($s->getObject("test", "1.txt"));
  *
- * // 删除一个Object
- * $s->deleteObject($bucketName, $uploadName);
+ * // 从test这个Bucket读取Object 1.txt，把1.txt的内容保存在本地的/tmp/savefile.txt
+ * $s->getObject("test", "1.txt", "/tmp/savefile.txt");
  *
- * // 给私有Object生成一个外网能够临时访问的URL
- * $s->getTempUrl($bucket, $uri, $method, $seconds);
+ * // 从test这个Bucket读取Object 1.txt，把1.txt的内容保存在打开的文件句柄中 
+ * $s->getObject("test", "1.txt", fopen("/tmp/savefile.txt", 'wb'));
+ *
+ * **Object删除操作**
+ *
+ * // 从test这个Bucket删除Object 1.txt 
+ * $s->deleteObject("test", "1.txt");
+ *
+ * **生成一个外网能够访问的url**
+ *
+ * // 为私有Bucket test中的Object 1.txt生成一个能够在外网用GET方法临时访问的URL，次URL过期时间为600s
+ * $s->getTempUrl("test", "1.txt", "GET", 600);
+ *
+ * // 为test这个Bucket中的Object 1.txt生成一个能用CDN访问的URL
+ * $s->getCdnUrl("test", "1.txt");
  *
  * **调试模式**
  *
