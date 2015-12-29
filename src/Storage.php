@@ -19,74 +19,75 @@ if (defined('SAE_APPNAME')) {
  * <?php
  * use sinacloud\sae\Storage as Storage;
  *
- * // 在SAE运行环境中时可以不传认证信息，默认会从应用的环境变量中取
- * $s = new Storage();
+ * **类初始化**
  *
- * // 如果不在SAE运行环境或者要连非本应用的storage，需要传入所连应用的"应用名:应用AccessKey"和"应用SecretKey"
- * $s = new Storage("$AppName:$AccessKey", $SecretKey);
- * ?>
- * ```
+ * // 方法一：
+ * $s = new Storage();  //在SAE运行环境中时可以不传认证信息，默认会从应用的环境变量中取
  *
- * **Object操作**
+ * // 方法二：
+ * $s = new Storage("$AppName:$AccessKey", $SecretKey);  //如果不在SAE运行环境或者要连非本应用的storage，需要传入所连应用的"应用名:应用AccessKey"和"应用SecretKey"
  *
- * ```php
- * <?php
- * // 上传一个文件
- * $s->putObject($s->inputFile($file), $bucketName, $uploadName)
+ * **变量定义**
  *
- * // 上传一个字符串，并且设置其Content-type
- * $s->putObject($string, $bucketName, $uploadName, Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'))
- *
- * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）
- * $s->putObject(Storage::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, Storage::ACL_PUBLIC_READ)
- *
- * // 读取一个Object
- * $s->getObject($bucketName, $uploadName)
- *
- * // 将Object保存为一个本地文件
- * $s->getObject($bucketName, $uploadName, $saveName)
- *
- * // 将Object保存到一个打开的文件句柄里
- * $s->getObject($bucketName, $uploadName, fopen('savefile.txt', 'wb'))
- *
- * // 删除一个Object
- * $s->deleteObject($bucketName, $uploadName)
- *
- * // 给私有Object生成一个外网能够临时访问的URL
- * $s->getTempUrl($bucket, $uri, $method, $seconds) 
- * ?>
- * ```
+ * $bucketName = "test";  // 创建的bucket名称
+ * $file = "/tmp/1.txt";  // 要上传的本地文件路径
+ * $uploadName = "1.txt"; // 上传的文件在storage中的存放路径;也可以写成a/1.txt，即把文件上传到a目录中
+ * $string = "This is sae.";  // 上传的字符串
+ * $saveName = "/tmp/savefile.txt";  // 保存storage下载内容的本地文件路径 
+ * $uri = "1.txt";  //给哪个object生成一个能临时访问的url
+ * $method = "GET"; //设定哪种方法才能访问这个能临时访问的url
+ * $seconds = 600;  //设定这个能临时访问的url的过期时间
  *
  * **Bucket操作**
  *
- * ```php
- * <?php
- * // 获取Bucket列表
- * $s->listBuckets()  // Simple bucket list
- * $s->listBuckets(true)  // Detailed bucket list
- *
  * // 创建一个Bucket
- * $s->putBucket($bucketName)
+ * $s->putBucket($bucketName);
+ *
+ * // 获取Bucket列表
+ * $s->listBuckets();  // Simple bucket list
+ * $s->listBuckets(true);  // Detailed bucket list
  *
  * // 获取Bucket中的Object对象列表
- * $s->getBucket($bucketName)
+ * $s->getBucket($bucketName);
  *
  * // Storage可以作为一个伪文件系统用，在getBucket时，当prefix的最后一个字符是/，delimiter为/时，
  * // 可以获取prefix这个路径下对象
  * // 比如下面的这行代码可以获取a/目录下所有的文件（Object）
- * $s->getBucket($bucketName, 'a/', null, 10, '/')
+ * $s->getBucket($bucketName, 'a/', null, 10, '/');
  *
  * // 删除一个空的Bucket
- * $s->deleteBucket($bucketName)
- * ?>
- * ```
+ * $s->deleteBucket($bucketName);
+ *
+ * **Object操作**
+ *
+ * // 上传一个文件
+ * $s->putObject($s->inputFile($file), $bucketName, $uploadName);
+ *
+ * // 上传一个字符串，并且设置其Content-type
+ * $s->putObject($string, $bucketName, $uploadName, Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'));
+ *
+ * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）
+ * $s->putObject(Storage::inputResource(fopen($file, 'rb'), filesize($file)), $bucketName, $uploadName, Storage::ACL_PUBLIC_READ);
+ *
+ * // 读取一个Object
+ * $s->getObject($bucketName, $uploadName);
+ *
+ * // 将Object保存为一个本地文件
+ * $s->getObject($bucketName, $uploadName, $saveName);
+ *
+ * // 将Object保存到一个打开的文件句柄里
+ * $s->getObject($bucketName, $uploadName, fopen($saveName, 'wb'));
+ *
+ * // 删除一个Object
+ * $s->deleteObject($bucketName, $uploadName);
+ *
+ * // 给私有Object生成一个外网能够临时访问的URL
+ * $s->getTempUrl($bucket, $uri, $method, $seconds);
  *
  * **调试模式**
  *
- * ```php
- * <?php
  * // 开启调试模式，出问题的时候方便定位问题，设置为true后遇到错误的时候会抛出异常而不是写一条warning信息到日志。
- * $s->setExceptions(true)
+ * $s->setExceptions(true);
  * ?>
  * ```
  */
