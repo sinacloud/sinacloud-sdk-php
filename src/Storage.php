@@ -58,15 +58,15 @@ if (defined('SAE_APPNAME')) {
  * // 上传一个字符串到test这个Bucket中，设置此Object名为string.txt，并且设置其Content-type
  * $s->putObject("This is string.", "test", "string.txt", Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'));
  *
- * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）到test这个Bucket中，设置此Object名为file.txt;SAE_TMP_PATH路径具有写权限，用户可以往这个目录下写文件，但文件的生存周期等同于PHP请求，也就是当该PHP请求完成执行时，所有写入SAE_TMP_PATH的文件都会被销毁
- * $s->putObject(Storage::inputResource(fopen(SAE_TMP_PATH."1.txt", 'rb'), filesize(SAE_TMP_PATH."1.txt"), "test", "file.txt", Storage::ACL_PUBLIC_READ);
+ * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）到test这个Bucket中，设置此Object名为file.txt
+ * $s->putObject(Storage::inputResource(fopen($_FILES['uploaded']['tmp_name'], 'rb'), filesize($_FILES['uploaded']['tmp_name']), "test", "file.txt", Storage::ACL_PUBLIC_READ);
  *
  * **Object下载操作**
  *
  * // 从test这个Bucket读取Object 1.txt，输出为此次请求的详细信息，包括状态码和1.txt的内容等
  * var_dump($s->getObject("test", "1.txt"));
  *
- * // 从test这个Bucket读取Object 1.txt，把1.txt的内容保存在runtime本地SAE_TMP_PATH的savefile.txt文件中
+ * // 从test这个Bucket读取Object 1.txt，把1.txt的内容保存在SAE_TMP_PATH变量指定的TmpFS中，savefile.txt为保存的文件名;SAE_TMP_PATH路径具有写权限，用户可以往这个目录下写文件，但文件的生存周期等同于PHP请求，也就是当该PHP请求完成执行时，所有写入SAE_TMP_PATH的文件都会被销毁
  * $s->getObject("test", "1.txt", SAE_TMP_PATH."savefile.txt");
  *
  * // 从test这个Bucket读取Object 1.txt，把1.txt的内容保存在打开的文件句柄中 
