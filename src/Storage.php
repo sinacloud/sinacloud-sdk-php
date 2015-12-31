@@ -33,8 +33,10 @@ if (defined('SAE_APPNAME')) {
  * $s->putBucket("test");
  *
  * // 获取Bucket列表
- * $s->listBuckets();  // Simple bucket list
- * $s->listBuckets(true);  // Detailed bucket list
+ * $s->listBuckets();
+ *
+ * // 获取Bucket列表及Bucket中Object数量和Bucket的大小
+ * $s->listBuckets(true);
  *
  * // 获取test这个Bucket中的Object对象列表
  * $s->getBucket("test");
