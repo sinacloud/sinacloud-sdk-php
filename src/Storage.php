@@ -77,6 +77,14 @@ if (defined('SAE_APPNAME')) {
  * // 从test这个Bucket删除Object 1.txt 
  * $s->deleteObject("test", "1.txt");
  *
+ * **Object复制操作
+ *
+ * // 把test这个Bucket的Object 1.txt内容复制到newtest这个Bucket的Object 1.txt
+ * $s->copyObject("test", "1.txt", "newtest", "1.txt");
+ *
+ * // 把test这个Bucket的Object 1.txt内容复制到newtest这个Bucket的Object 1.txt，并设置Object的浏览器缓存过期时间为10s和Content-Type为text/plain
+ * $s->copyObject("test", "1.txt", "newtest", "1.txt", array('expires' => '10s'), array('Content-Type' => 'text/plain'));
+ *
  * **生成一个外网能够访问的url**
  *
  * // 为私有Bucket test中的Object 1.txt生成一个能够在外网用GET方法临时访问的URL，次URL过期时间为600s
@@ -729,7 +737,7 @@ class Storage
         $rest->setHeader('Content-Length', 0);
         foreach ($requestHeaders as $h => $v)
             strpos($h, 'x-sws-') === 0 ? $rest->setSwsHeader($h, $v) : $rest->setHeader($h, $v);
-        foreach ($metaHeaders as $h => $v) $rest->setSwsHeader('x-sws-meta-'.$h, $v);
+        foreach ($metaHeaders as $h => $v) $rest->setSwsHeader('x-sws-object-meta-'.$h, $v);
         $rest->setSwsHeader('x-sws-copy-from', sprintf('/%s/%s', $srcBucket, rawurlencode($srcUri)));
 
         $rest = $rest->getResponse();
