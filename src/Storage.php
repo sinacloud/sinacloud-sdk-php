@@ -79,7 +79,7 @@ if (defined('SAE_APPNAME')) {
  * // 从test这个Bucket删除Object 1.txt 
  * $s->deleteObject("test", "1.txt");
  *
- * **Object复制操作
+ * **Object复制操作**
  *
  * // 把test这个Bucket的Object 1.txt内容复制到newtest这个Bucket的Object 1.txt
  * $s->copyObject("test", "1.txt", "newtest", "1.txt");
