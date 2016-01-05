@@ -41,10 +41,11 @@ if (defined('SAE_APPNAME')) {
  * // 获取test这个Bucket中的Object对象列表
  * $s->getBucket("test");
  *
- * // Storage可以作为一个伪文件系统用，在getBucket时，当prefix的最后一个字符是/，delimiter为/时，
- * // 可以获取prefix这个路径下对象
- * // 比如下面的这行代码可以获取a/目录下所有的文件（Object）
- * $s->getBucket("test", 'a/', null, 10, '/');
+ * // Storage可以作为一个伪文件系统用，比如下面的这行代码可以获取test这个Bucket中a/目录中前10000个文件（Object）
+ * $s->getBucket("test", 'a/', null, 10000);
+ *
+ * // Storage可以作为一个伪文件系统用，比如下面的这行代码可以获取test这个Bucket中a/目录中从Object a/1.txt开始的前10000个文件（Object），a/1.txt之前的文件会忽略
+ * $s->getBucket("test", 'a/', 'a/1.txt', 10000);
  *
  * // 删除一个空的Bucket test
  * $s->deleteBucket("test");
