@@ -38,17 +38,17 @@ if (defined('SAE_APPNAME')) {
  * // 获取Bucket列表及Bucket中Object数量和Bucket的大小
  * $s->listBuckets(true);
  *
- * // 获取test这个Bucket中的Object对象列表
+ * // 获取test这个Bucket中的Object对象列表，默认返回前1000个，如果需要返回大于1000个Object的列表，可以通过limit参数来指定。
  * $s->getBucket("test");
  *
- * // 获取test这个Bucket中Object名称以a/开头的前10个文件（Object）
- * $s->getBucket("test", 'a/', null, 10);
+ * // 获取test这个Bucket中所有以 *a/* 为前缀的Objects列表
+ * $s->getBucket("test", 'a/');
  *
- * // 获取test这个Bucket中Object名称以a/开头的前10000个文件（Object），a/1.txt之前的文件会忽略
- * $s->getBucket("test", 'a/', 'a/1.txt', 10000);
+ * // 获取test这个Bucket中所有以 *a/* 为前缀的Objects列表，只显示 *a/N* 这个Object之后的列表（不包含 *a/N* 这个Object）。
+ * $s->getBucket("test", 'a/', 'a/N');
  *
- * // Storage可以作为一个伪文件系统使用，如下例子获取test这个Bucket中a/目录中的前100个文件（Object），如果a/目录中有子目录的话，则只显示子目录的名字
- * $s->getBucket("test", 'a/', null, 100, '/');
+ * // Storage也可以当成一个伪文件系统来使用，比如获取 *a/* 目录下的Object（不显示其下的子目录的具体Object名称，只显示目录名）
+ * $s->getBucket("test", 'a/', null, 10000, '/');
  *
  * // 删除一个空的Bucket test
  * $s->deleteBucket("test");
@@ -313,7 +313,7 @@ class Storage
      *
      * @param string $bucket Bucket名称
      * @param string $prefix Object名称的前缀
-     * @param string $marker Marker (上次getBucket调用的最后一个Object名称）
+     * @param string $marker Marker (返回marker之后的object列表，不包含marker）
      * @param string $limit 最大返回的Object数目
      * @param string $delimiter 分隔符
      * @return array | false
