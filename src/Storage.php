@@ -41,11 +41,14 @@ if (defined('SAE_APPNAME')) {
  * // 获取test这个Bucket中的Object对象列表
  * $s->getBucket("test");
  *
- * // Storage可以作为一个伪文件系统用，比如下面的这行代码可以获取test这个Bucket中a/目录中前10000个文件（Object）
- * $s->getBucket("test", 'a/', null, 10000);
+ * // 获取test这个Bucket中Object名称以a/开头的前10个文件（Object）
+ * $s->getBucket("test", 'a/', null, 10);
  *
- * // Storage可以作为一个伪文件系统用，比如下面的这行代码可以获取test这个Bucket中a/目录中从Object a/1.txt开始的前10000个文件（Object），a/1.txt之前的文件会忽略
+ * // 获取test这个Bucket中Object名称以a/开头的前10000个文件（Object），a/1.txt之前的文件会忽略
  * $s->getBucket("test", 'a/', 'a/1.txt', 10000);
+ *
+ * // Storage可以作为一个伪文件系统使用，如下例子获取test这个Bucket中a/目录中的前100个文件（Object），如果a/目录中有子目录的话，则只显示子目录的名字
+ * $s->getBucket("test", 'a/', null, 100, '/');
  *
  * // 删除一个空的Bucket test
  * $s->deleteBucket("test");
