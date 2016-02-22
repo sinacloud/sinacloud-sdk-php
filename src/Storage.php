@@ -54,7 +54,7 @@ namespace sinacloud\sae;
  * $s->putObjectFile($_FILES['uploaded']['tmp_name'], "test", "sae/1.txt");
  *
  * // 上传一个字符串到test这个Bucket中，设置此Object名为string.txt，并且设置其Content-type
- * $s->putObject("This is string.", "test", "string.txt", Storage::ACL_PUBLIC_READ, array(), array('Content-Type' => 'text/plain'));
+ * $s->putObject("This is string.", "test", "string.txt", array(), array('Content-Type' => 'text/plain'));
  *
  * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）到test这个Bucket中，设置此Object名为file.txt
  * $s->putObject(Storage::inputResource(fopen($_FILES['uploaded']['tmp_name'], 'rb'), filesize($_FILES['uploaded']['tmp_name']), "test", "file.txt", Storage::ACL_PUBLIC_READ);
