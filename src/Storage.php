@@ -2,14 +2,6 @@
 
 namespace sinacloud\sae;
 
-if (defined('SAE_APPNAME')) {
-    define('DEFAULT_STORAGE_ENDPOINT', 'api.i.sinas3.com:81');
-    define('DEFAULT_USE_SSL', false);
-} else {
-    define('DEFAULT_STORAGE_ENDPOINT', 'api.sinas3.com');
-    define('DEFAULT_USE_SSL', true);
-}
-
 /**
  * 新浪云Storage PHP客户端
  *
@@ -106,6 +98,14 @@ if (defined('SAE_APPNAME')) {
  * ?>
  * ```
  */
+
+if (defined('SAE_APPNAME')) {
+    define('DEFAULT_STORAGE_ENDPOINT', 'api.i.sinas3.com:81');
+    define('DEFAULT_USE_SSL', false);
+} else {
+    define('DEFAULT_STORAGE_ENDPOINT', 'api.sinas3.com');
+    define('DEFAULT_USE_SSL', true);
+}
 
 class Storage
 {
