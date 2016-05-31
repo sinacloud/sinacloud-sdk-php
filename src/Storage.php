@@ -11,7 +11,7 @@ if (defined('SAE_APPNAME')) {
 }
 
 /**
- * SAE Storage PHP客户端
+ * 新浪云Storage PHP客户端
  *
  * @copyright Copyright (c) 2015, SINA, All rights reserved.
  *
@@ -21,10 +21,10 @@ if (defined('SAE_APPNAME')) {
  *
  * **类初始化**
  *
- * // 方法一：在SAE运行环境中时可以不传认证信息，默认会从应用的环境变量中取
+ * // 方法一：在新浪云运行环境中时可以不传认证信息，默认会从应用的环境变量中取
  * $s = new Storage();
  *
- * // 方法二：如果不在SAE运行环境或者要连非本应用的storage，需要传入所连应用的"应用名:应用AccessKey"和"应用SecretKey"
+ * // 方法二：如果不在新浪云运行环境或者要连非本应用的storage，需要传入所连应用的"应用名:应用AccessKey"和"应用SecretKey"
  * $s = new Storage("$AppName:$AccessKey", $SecretKey);
  *
  * **Bucket操作**
@@ -172,7 +172,7 @@ class Storage
      * @param string $accessKey 此处需要使用"应用名:应用Accesskey"
      * @param string $secretKey 应用Secretkey
      * @param boolean $useSSL 是否使用SSL
-     * @param string $endpoint SAE Storage的endpoint
+     * @param string $endpoint 新浪云Storage的endpoint
      * @return void
      */
     public function __construct($accessKey = null, $secretKey = null,
@@ -190,9 +190,9 @@ class Storage
 
 
     /**
-     * 设置SAE的Storage的endpoint
+     * 设置新浪云的Storage的endpoint
      *
-     * @param string $host SAE Storage的hostname
+     * @param string $host 新浪云Storage的hostname
      * @return void
      */
     public function setEndpoint($host)
