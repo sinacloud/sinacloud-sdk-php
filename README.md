@@ -1,4 +1,4 @@
-# SAE PHP SDK
+# 新浪云 PHP SDK
 
 ## 安装方式
 
@@ -9,13 +9,13 @@
     "repositories": [
         {
             "type": "vcs",
-            "url": "git@git.sae.sina.com.cn:sae/sae-php-sdk.git"
+            "url": "https://github.com/sinacloud/sinacloud-sdk-php.git"
         }
     ],
     "require": {
-        "sinacloud/sae-php-sdk": "dev-master"
+        "sinacloud/sinacloud-sdk-php": "dev-master"
     }
 }
 ```
 
-然后执行 *composer install* 即可完成 *sae-php-sdk* 的安装。
+然后执行 *composer install* 即可完成 *sinacloud-sdk-php* 的安装。
