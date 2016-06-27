@@ -1,6 +1,6 @@
 {
-    "name": "sinacloud/sae-php-sdk",
-    "description": "SAE PHP SDK for PHP 5.3.x",
+    "name": "sinacloud/sinacloud-sdk-php",
+    "description": " SinaCloud SDK for PHP 5.3.x",
     "type": "library",
     "authors": [
         {
