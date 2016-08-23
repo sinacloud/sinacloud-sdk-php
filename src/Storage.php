@@ -565,24 +565,15 @@ class Storage
         if (is_array($requestHeaders))
             foreach ($requestHeaders as $h => $v)
                 strpos($h, 'x-') === 0 ? $rest->setSwsHeader($h, $v) : $rest->setHeader($h, $v);
-        elseif (is_string($requestHeaders)) // Support for legacy contentType parameter
-            $input['type'] = $requestHeaders;
 
-        // Content-Type
-        if (!isset($input['type']))
-        {
-            if (isset($requestHeaders['Content-Type']))
-                $input['type'] =& $requestHeaders['Content-Type'];
-            elseif (isset($input['file']))
-                $input['type'] = self::__getMIMEType($input['file']);
-            else
-                $input['type'] = 'application/octet-stream';
-        }
+        if (is_string($requestHeaders)) // Support for legacy contentType parameter
+            $rest->setHeader('content-type', $requestHeaders);
+        else if (!isset($requestHeaders['content-type']) && !isset($requestHeaders['Content-Type']))
+            $rest->setHeader('content-type', self::__getMIMEType($uri));
 
         // We need to post with Content-Length and Content-Type, MD5 is optional
         if ($rest->size >= 0 && ($rest->fp !== false || $rest->data !== false))
         {
-            $rest->setHeader('Content-Type', $input['type']);
             if (isset($input['md5sum'])) $rest->setHeader('Content-MD5', $input['md5sum']);
 
             foreach ($metaHeaders as $h => $v) $rest->setSwsHeader('x-sws-object-meta-'.$h, $v);
@@ -630,7 +621,7 @@ class Storage
      * @param string $contentType Content type
      * @return boolean
      */
-    public static function putObjectString($string, $bucket, $uri, $metaHeaders = array(), $contentType = 'text/plain')
+    public static function putObjectString($string, $bucket, $uri, $metaHeaders = array(), $contentType = false)
     {
         return self::putObject($string, $bucket, $uri, $metaHeaders, $contentType);
     }
@@ -964,7 +955,7 @@ final class StorageRequest
     private $parameters = array();
     private $swsHeaders = array();
     private $headers = array(
-        'Host' => '', 'Date' => '', 'Content-MD5' => '', 'Content-Type' => ''
+        'Host' => '', 'Date' => '', 'Content-MD5' => ''
     );
 
     public $fp = false;
