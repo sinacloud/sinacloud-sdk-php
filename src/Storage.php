@@ -181,7 +181,7 @@ class Storage
         if ($accessKey !== null && $secretKey !== null) {
             self::setAuth($accessKey, $secretKey);
         } else if (defined('SAE_APPNAME')) {
-            // We are in SAE Runtime
+            // We are in 新浪云运行环境
             self::setAuth(SAE_APPNAME.':'.SAE_ACCESSKEY, SAE_SECRETKEY);
         }
         self::$useSSL = $useSSL;
