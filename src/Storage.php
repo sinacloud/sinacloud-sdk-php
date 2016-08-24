@@ -3,7 +3,7 @@
 namespace sinacloud\sae;
 
 /**
- * 新浪云Storage PHP客户端
+ * 新浪云 Storage PHP 客户端
  *
  * @copyright Copyright (c) 2015, SINA, All rights reserved.
  *
@@ -16,84 +16,84 @@ namespace sinacloud\sae;
  * // 方法一：在新浪云运行环境中时可以不传认证信息，默认会从应用的环境变量中取
  * $s = new Storage();
  *
- * // 方法二：如果不在新浪云运行环境或者要连非本应用的storage，需要传入所连应用的"应用名:应用AccessKey"和"应用SecretKey"
+ * // 方法二：如果不在新浪云运行环境或者要连非本应用的 storage，需要传入所连应用的"应用名：应用 AccessKey"和"应用 SecretKey"
  * $s = new Storage("$AppName:$AccessKey", $SecretKey);
  *
- * **Bucket操作**
+ * **Bucket 操作**
  *
- * // 创建一个Bucket test
+ * // 创建一个 Bucket test
  * $s->putBucket("test");
  *
- * // 获取Bucket列表
+ * // 获取 Bucket 列表
  * $s->listBuckets();
  *
- * // 获取Bucket列表及Bucket中Object数量和Bucket的大小
+ * // 获取 Bucket 列表及 Bucket 中 Object 数量和 Bucket 的大小
  * $s->listBuckets(true);
  *
- * // 获取test这个Bucket中的Object对象列表，默认返回前1000个，如果需要返回大于1000个Object的列表，可以通过limit参数来指定。
+ * // 获取 test 这个 Bucket 中的 Object 对象列表，默认返回前 1000 个，如果需要返回大于 1000 个 Object 的列表，可以通过 limit 参数来指定。
  * $s->getBucket("test");
  *
- * // 获取test这个Bucket中所有以 *a/* 为前缀的Objects列表
+ * // 获取 test 这个 Bucket 中所有以 a/ 为前缀的 Objects 列表
  * $s->getBucket("test", 'a/');
  *
- * // 获取test这个Bucket中所有以 *a/* 为前缀的Objects列表，只显示 *a/N* 这个Object之后的列表（不包含 *a/N* 这个Object）。
+ * // 获取 test 这个 Bucket 中所有以 a/ 为前缀的 Objects 列表，只显示 a/N 这个 Object 之后的列表（不包含 a/N 这个 Object）。
  * $s->getBucket("test", 'a/', 'a/N');
  *
- * // Storage也可以当成一个伪文件系统来使用，比如获取 *a/* 目录下的Object（不显示其下的子目录的具体Object名称，只显示目录名）
+ * // Storage 也可以当成一个伪文件系统来使用，比如获取 a/ 目录下的 Object（不显示其下的子目录的具体 Object 名称，只显示目录名）
  * $s->getBucket("test", 'a/', null, 10000, '/');
  *
- * // 删除一个空的Bucket test
+ * // 删除一个空的 Bucket test
  * $s->deleteBucket("test");
  *
- * **Object上传操作**
+ * **Object 上传操作**
  *
- * // 把$_FILES全局变量中的缓存文件上传到test这个Bucket，设置此Object名为1.txt
+ * // 把 $_FILES 全局变量中的缓存文件上传到 test 这个 Bucket，设置此 Object 名为 1.txt
  * $s->putObjectFile($_FILES['uploaded']['tmp_name'], "test", "1.txt");
  *
- * // 把$_FILES全局变量中的缓存文件上传到test这个Bucket，设置此Object名为sae/1.txt
+ * // 把 $_FILES 全局变量中的缓存文件上传到 test 这个 Bucket，设置此 Object 名为 sae/1.txt
  * $s->putObjectFile($_FILES['uploaded']['tmp_name'], "test", "sae/1.txt");
  *
- * // 上传一个字符串到test这个Bucket中，设置此Object名为string.txt，并且设置其Content-type
+ * // 上传一个字符串到 test 这个 Bucket 中，设置此 Object 名为 string.txt，并且设置其 Content-type
  * $s->putObject("This is string.", "test", "string.txt", array(), array('Content-Type' => 'text/plain'));
  *
- * // 上传一个文件句柄（必须是buffer或者一个文件，文件会被自动fclose掉）到test这个Bucket中，设置此Object名为file.txt
+ * // 上传一个文件句柄（必须是 buffer 或者一个文件，文件会被自动 fclose 掉）到 test 这个 Bucket 中，设置此 Object 名为 file.txt
  * $s->putObject(Storage::inputResource(fopen($_FILES['uploaded']['tmp_name'], 'rb'), filesize($_FILES['uploaded']['tmp_name']), "test", "file.txt", Storage::ACL_PUBLIC_READ);
  *
- * **Object下载操作**
+ * **Object 下载操作**
  *
- * // 从test这个Bucket读取Object 1.txt，输出为此次请求的详细信息，包括状态码和1.txt的内容等
+ * // 从 test 这个 Bucket 读取 Object 1.txt，输出为此次请求的详细信息，包括状态码和 1.txt 的内容等
  * var_dump($s->getObject("test", "1.txt"));
  *
- * // 从test这个Bucket读取Object 1.txt，把1.txt的内容保存在SAE_TMP_PATH变量指定的TmpFS中，savefile.txt为保存的文件名;SAE_TMP_PATH路径具有写权限，用户可以往这个目录下写文件，但文件的生存周期等同于PHP请求，也就是当该PHP请求完成执行时，所有写入SAE_TMP_PATH的文件都会被销毁
+ * // 从 test 这个 Bucket 读取 Object 1.txt，把 1.txt 的内容保存在 SAE_TMP_PATH 变量指定的 TmpFS 中，savefile.txt 为保存的文件名；SAE_TMP_PATH 路径具有写权限，用户可以往这个目录下写文件，但文件的生存周期等同于 PHP 请求，也就是当该 PHP 请求完成执行时，所有写入 SAE_TMP_PATH 的文件都会被销毁
  * $s->getObject("test", "1.txt", SAE_TMP_PATH."savefile.txt");
  *
- * // 从test这个Bucket读取Object 1.txt，把1.txt的内容保存在打开的文件句柄中 
+ * // 从 test 这个 Bucket 读取 Object 1.txt，把 1.txt 的内容保存在打开的文件句柄中
  * $s->getObject("test", "1.txt", fopen(SAE_TMP_PATH."savefile.txt", 'wb'));
  *
- * **Object删除操作**
+ * **Object 删除操作**
  *
- * // 从test这个Bucket删除Object 1.txt 
+ * // 从 test 这个 Bucket 删除 Object 1.txt
  * $s->deleteObject("test", "1.txt");
  *
- * **Object复制操作**
+ * **Object 复制操作**
  *
- * // 把test这个Bucket的Object 1.txt内容复制到newtest这个Bucket的Object 1.txt
+ * // 把 test 这个 Bucket 的 Object 1.txt 内容复制到 newtest 这个 Bucket 的 Object 1.txt
  * $s->copyObject("test", "1.txt", "newtest", "1.txt");
  *
- * // 把test这个Bucket的Object 1.txt内容复制到newtest这个Bucket的Object 1.txt，并设置Object的浏览器缓存过期时间为10s和Content-Type为text/plain
+ * // 把 test 这个 Bucket 的 Object 1.txt 内容复制到 newtest 这个 Bucket 的 Object 1.txt，并设置 Object 的浏览器缓存过期时间为 10s 和 Content-Type 为 text/plain
  * $s->copyObject("test", "1.txt", "newtest", "1.txt", array('expires' => '10s'), array('Content-Type' => 'text/plain'));
  *
- * **生成一个外网能够访问的url**
+ * **生成一个外网能够访问的 url**
  *
- * // 为私有Bucket test中的Object 1.txt生成一个能够在外网用GET方法临时访问的URL，次URL过期时间为600s
+ * // 为私有 Bucket test 中的 Object 1.txt 生成一个能够在外网用 GET 方法临时访问的 URL，次 URL 过期时间为 600s
  * $s->getTempUrl("test", "1.txt", "GET", 600);
  *
- * // 为test这个Bucket中的Object 1.txt生成一个能用CDN访问的URL
+ * // 为 test 这个 Bucket 中的 Object 1.txt 生成一个能用 CDN 访问的 URL
  * $s->getCdnUrl("test", "1.txt");
  *
  * **调试模式**
  *
- * // 开启调试模式，出问题的时候方便定位问题，设置为true后遇到错误的时候会抛出异常而不是写一条warning信息到日志。
+ * // 开启调试模式，出问题的时候方便定位问题，设置为 true 后遇到错误的时候会抛出异常而不是写一条 warning 信息到日志。
  * $s->setExceptions(true);
  * ?>
  * ```
@@ -118,7 +118,7 @@ class Storage
     private static $__account = null;
 
     /**
-     * 默认使用的分隔符，getBucket()等用到
+     * 默认使用的分隔符，getBucket() 等用到
      *
      * @var string
      * @access public
@@ -131,7 +131,7 @@ class Storage
     public static $proxy = null;
 
     /**
-     * 使用SSL连接？
+     * 使用 SSL 连接？
      *
      * @var bool
      * @access public
@@ -140,7 +140,7 @@ class Storage
     public static $useSSL = DEFAULT_USE_SSL;
 
     /**
-     * 是否验证SSL证书
+     * 是否验证 SSL 证书
      *
      * @var bool
      * @access public
@@ -149,7 +149,7 @@ class Storage
     public static $useSSLValidation = false;
 
     /**
-     * 使用的SSL版本
+     * 使用的 SSL 版本
      *
      * @var const
      * @access public
@@ -158,7 +158,7 @@ class Storage
     public static $useSSLVersion = 1;
 
     /**
-     * 出现错误的时候是否使用PHP Exception（默认使用trigger_error纪录错误）
+     * 出现错误的时候是否使用 PHP Exception（默认使用 trigger_error 纪录错误）
      *
      * @var bool
      * @access public
@@ -169,10 +169,10 @@ class Storage
     /**
      * 构造函数
      *
-     * @param string $accessKey 此处需要使用"应用名:应用Accesskey"
-     * @param string $secretKey 应用Secretkey
-     * @param boolean $useSSL 是否使用SSL
-     * @param string $endpoint 新浪云Storage的endpoint
+     * @param string $accessKey 此处需要使用"应用名:Accesskey"
+     * @param string $secretKey 应用 Secretkey
+     * @param boolean $useSSL 是否使用 SSL
+     * @param string $endpoint 新浪云 Storage 的 endpoint
      * @return void
      */
     public function __construct($accessKey = null, $secretKey = null,
@@ -190,9 +190,9 @@ class Storage
 
 
     /**
-     * 设置新浪云的Storage的endpoint
+     * 设置新浪云的 Storage 的 endpoint
      *
-     * @param string $host 新浪云Storage的hostname
+     * @param string $host 新浪云 Storage 的 hostname
      * @return void
      */
     public function setEndpoint($host)
@@ -202,10 +202,10 @@ class Storage
 
 
     /**
-     * 设置访问的Accesskey和Secretkey
+     * 设置访问的 Accesskey 和 Secretkey
      *
-     * @param string $accessKey 此处需要使用"应用名:应用Accesskey"
-     * @param string $secretKey 应用Secretkey
+     * @param string $accessKey 此处需要使用"应用名：应用 Accesskey"
+     * @param string $secretKey 应用 Secretkey
      * @return void
      */
     public static function setAuth($accessKey, $secretKey)
@@ -223,10 +223,10 @@ class Storage
 
 
     /**
-     * 开启或者关闭SSL
+     * 开启或者关闭 SSL
      *
-     * @param boolean $enabled 是否启用SSL
-     * @param boolean $validate 是否验证SSL证书
+     * @param boolean $enabled 是否启用 SSL
+     * @param boolean $validate 是否验证 SSL 证书
      * @return void
      */
     public static function setSSL($enabled, $validate = true)
@@ -239,10 +239,10 @@ class Storage
     /**
      * 设置代理信息
      *
-     * @param string $host 代理的hostname和端口(localhost:1234)
-     * @param string $user 代理的username
-     * @param string $pass 代理的password
-     * @param constant $type CURL代理类型
+     * @param string $host 代理的 hostname 和端口 (localhost:1234)
+     * @param string $user 代理的 username
+     * @param string $pass 代理的 password
+     * @param constant $type CURL 代理类型
      * @return void
      */
     public static function setProxy($host, $user = null, $pass = null, $type = CURLPROXY_SOCKS5)
@@ -252,7 +252,7 @@ class Storage
 
 
     /**
-     * 设置是否使用PHP Exception，默认使用trigger_error
+     * 设置是否使用 PHP Exception，默认使用 trigger_error
      *
      * @param boolean $enabled Enable exceptions
      * @return void
@@ -273,9 +273,9 @@ class Storage
 
 
     /**
-     * 获取bucket列表
+     * 获取 bucket 列表
      *
-     * @param boolean $detailed 设置为true时返回bucket的详细信息
+     * @param boolean $detailed 设置为 true 时返回 bucket 的详细信息
      * @return array | false
      */
     public static function listBuckets($detailed = false)
@@ -309,12 +309,12 @@ class Storage
 
 
     /**
-     * 获取bucket中的object列表
+     * 获取 bucket 中的 object 列表
      *
-     * @param string $bucket Bucket名称
-     * @param string $prefix Object名称的前缀
-     * @param string $marker Marker (返回marker之后的object列表，不包含marker）
-     * @param string $limit 最大返回的Object数目
+     * @param string $bucket Bucket 名称
+     * @param string $prefix Object 名称的前缀
+     * @param string $marker Marker （返回 marker 之后的 object 列表，不包含 marker）
+     * @param string $limit 最大返回的 Object 数目
      * @param string $delimiter 分隔符
      * @return array | false
      */
@@ -365,11 +365,11 @@ class Storage
 
 
     /**
-     * 创建一个Bucket
+     * 创建一个 Bucket
      *
-     * @param string $bucket Bucket名称
-     * @param constant $acl Bucket的ACL
-     * @param array $metaHeaders x-sws-container-meta-* header数组
+     * @param string $bucket Bucket 名称
+     * @param constant $acl Bucket 的 ACL
+     * @param array $metaHeaders x-sws-container-meta-* header 数组
      * @return boolean
      */
     public static function putBucket($bucket, $acl = self::ACL_PRIVATE, $metaHeaders=array())
@@ -396,9 +396,9 @@ class Storage
     }
 
     /**
-     * 获取一个Bucket的属性
-     * @param string $bucket Bucket名称
-     * @param boolean $returnInfo 是否返回Bucket的信息
+     * 获取一个 Bucket 的属性
+     * @param string $bucket Bucket 名称
+     * @param boolean $returnInfo 是否返回 Bucket 的信息
      * @return mixed
      */
     public static function getBucketInfo($bucket, $returnInfo=True) {
@@ -416,11 +416,11 @@ class Storage
     }
 
     /**
-     * 修改一个Bucket的属性
+     * 修改一个 Bucket 的属性
      *
-     * @param string $bucket Bucket名称
-     * @param constant $acl Bucket的ACL，null表示不变
-     * @param array $metaHeaders x-sws-container-meta-* header数组
+     * @param string $bucket Bucket 名称
+     * @param constant $acl Bucket 的 ACL，null 表示不变
+     * @param array $metaHeaders x-sws-container-meta-* header 数组
      * @return boolean
      */
     public static function postBucket($bucket, $acl = null, $metaHeaders=array())
@@ -447,9 +447,9 @@ class Storage
     }
 
     /**
-     * 删除一个空的Bucket
+     * 删除一个空的 Bucket
      *
-     * @param string $bucket Bucket名称
+     * @param string $bucket Bucket 名称
      * @return boolean
      */
     public static function deleteBucket($bucket)
@@ -469,7 +469,7 @@ class Storage
 
 
     /**
-     * 为本地文件路径创建一个可以用于putObject()上传的array
+     * 为本地文件路径创建一个可以用于 putObject() 上传的 array
      *
      * @param string $file 文件路径
      * @param mixed $md5sum Use MD5 hash (supply a string if you want to use your own)
@@ -489,7 +489,7 @@ class Storage
 
 
     /**
-     * 为打开的文件句柄创建一个可以用于putObject()上传的array
+     * 为打开的文件句柄创建一个可以用于 putObject() 上传的 array
      *
      * @param string $resource Input resource to read from
      * @param integer $bufferSize Input byte size
@@ -522,12 +522,12 @@ class Storage
 
 
     /**
-     * 上传一个object
+     * 上传一个 object
      *
      * @param mixed $input Input data
      * @param string $bucket Bucket name
      * @param string $uri Object URI
-     * @param array $metaHeaders x-sws-object-meta-* header数组
+     * @param array $metaHeaders x-sws-object-meta-* header 数组
      * @param array $requestHeaders Array of request headers or content type as a string
      * @return boolean
      */
@@ -627,12 +627,12 @@ class Storage
     }
 
     /**
-     * 修改一个Object的属性
+     * 修改一个 Object 的属性
      *
-     * @param string $bucket Bucket名称
-     * @param constant $uri Object名称
-     * @param array $metaHeaders x-sws-container-meta-* header数组
-     * @param array $requestHeaders 其它header属性
+     * @param string $bucket Bucket 名称
+     * @param constant $uri Object 名称
+     * @param array $metaHeaders x-sws-container-meta-* header 数组
+     * @param array $requestHeaders 其它 header 属性
      * @return boolean
      */
     public static function postObject($bucket, $uri, $metaHeaders=array(), $requestHeaders=Array())
@@ -659,12 +659,12 @@ class Storage
     }
 
     /**
-     * 获取一个Object的内容
+     * 获取一个 Object 的内容
      *
-     * @param string $bucket Bucket名称
-     * @param string $uri Object名称
+     * @param string $bucket Bucket 名称
+     * @param string $uri Object 名称
      * @param mixed $saveTo 文件保存到的文件名或者句柄
-     * @return mixed 返回服务端返回的response，其中headers为Object的属性信息，body为Object的内容
+     * @return mixed 返回服务端返回的 response，其中 headers 为 Object 的属性信息，body 为 Object 的内容
      */
     public static function getObject($bucket, $uri, $saveTo = false)
     {
@@ -694,11 +694,11 @@ class Storage
 
 
     /**
-     * 获取一个Object的信息
+     * 获取一个 Object 的信息
      *
-     * @param string $bucket Bucket名称
-     * @param string $uri Object名称
-     * @param boolean $returnInfo 是否返回Object的详细信息
+     * @param string $bucket Bucket 名称
+     * @param string $uri Object 名称
+     * @param boolean $returnInfo 是否返回 Object 的详细信息
      * @return mixed | false
      */
     public static function getObjectInfo($bucket, $uri, $returnInfo = true)
@@ -718,12 +718,12 @@ class Storage
 
 
     /**
-     * 从一个Bucket复制一个Object到另一个Bucket
+     * 从一个 Bucket 复制一个 Object 到另一个 Bucket
      *
-     * @param string $srcBucket 源Bucket名称
-     * @param string $srcUri 源Object名称
-     * @param string $bucket 目标Bucket名称
-     * @param string $uri 目标Object名称
+     * @param string $srcBucket 源 Bucket 名称
+     * @param string $srcUri 源 Object 名称
+     * @param string $bucket 目标 Bucket 名称
+     * @param string $uri 目标 Object 名称
      * @param array $metaHeaders Optional array of x-sws-meta-* headers
      * @param array $requestHeaders Optional array of request headers (content type, disposition, etc.)
      * @return mixed | false
@@ -767,10 +767,10 @@ class Storage
 
 
     /**
-     * 删除一个Object
+     * 删除一个 Object
      *
-     * @param string $bucket Bucket名称
-     * @param string $uri Object名称
+     * @param string $bucket Bucket 名称
+     * @param string $uri Object 名称
      * @return boolean
      */
     public static function deleteObject($bucket, $uri)
@@ -790,10 +790,10 @@ class Storage
 
 
     /**
-     * 获取一个Object的外网直接访问URL
+     * 获取一个 Object 的外网直接访问 URL
      *
-     * @param string $bucket Bucket名称
-     * @param string $uri Object名称
+     * @param string $bucket Bucket 名称
+     * @param string $uri Object 名称
      * @return string
      */
     public static function getUrl($bucket, $uri)
@@ -802,14 +802,14 @@ class Storage
     }
 
      /**
-     * 获取一个Object的外网临时访问URL
+     * 获取一个 Object 的外网临时访问 URL
      *
-     * @param string $bucket Bucket名称
-     * @param string $uri Object名称
-     * @param string $method Http请求的方法，有GET, PUT, DELETE等
-     * @param int    $seconds 设置这个此URL的过期时间，单位是秒
+     * @param string $bucket Bucket 名称
+     * @param string $uri Object 名称
+     * @param string $method Http 请求的方法，有 GET, PUT, DELETE 等
+     * @param int    $seconds 设置这个此 URL 的过期时间，单位是秒
      */
-    public static function getTempUrl($bucket, $uri, $method, $seconds) 
+    public static function getTempUrl($bucket, $uri, $method, $seconds)
     {
         $expires = (int)(time() + $seconds);
         $path = "/v1/SAE_" . self::$__account . "/" . $bucket . "/" . $uri;
@@ -820,9 +820,9 @@ class Storage
     }
 
     /**
-     * 获取一个Object的CDN访问URL
-     * @param string $bucket Bucket名称
-     * @param string $uri Object名称
+     * 获取一个 Object 的 CDN 访问 URL
+     * @param string $bucket Bucket 名称
+     * @param string $uri Object 名称
      * @return string
      */
     public static function getCdnUrl($bucket, $uri)
@@ -833,7 +833,7 @@ class Storage
     /**
      * 修改账户的属性（for internal use onley）
      *
-     * @param array $metaHeaders x-sws-account-meta-* header数组
+     * @param array $metaHeaders x-sws-account-meta-* header 数组
      * @return boolean
      */
     public static function postAccount($metaHeaders=array())
@@ -859,7 +859,7 @@ class Storage
     /**
      * 获取账户的属性（for internal use only）
      *
-     * @param string $bucket Bucket名称
+     * @param string $bucket Bucket 名称
      * @return mixed
      */
     public static function getAccountInfo() {
@@ -1187,7 +1187,7 @@ final class StorageRequest
 }
 
 /**
- * Storage异常类
+ * Storage 异常类
  */
 class StorageException extends \Exception {
     /**
