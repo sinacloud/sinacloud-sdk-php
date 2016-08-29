@@ -5,7 +5,7 @@
 使用composer安装。
 
 ```sh
-$ composer require sinacloud/sinacloud-sdk-php
+$ composer require sinacloud/sinacloud-sdk-php:dev-master
 ```
 
 然后执行 *composer install* 即可完成 *sinacloud-sdk-php* 的安装。
