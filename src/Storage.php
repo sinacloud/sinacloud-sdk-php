@@ -798,7 +798,7 @@ class Storage
      */
     public static function getUrl($bucket, $uri)
     {
-        return "http://" . self::$__account . '-' . $bucket . '.stor.sinaapp.com/' . rawurlencode($uri);
+        return "http://" . self::$__account . '-' . $bucket . '.stor.sinaapp.com/' . self::__encodeURI($uri);
     }
 
      /**
@@ -816,7 +816,7 @@ class Storage
         $hmac_body = $method . "\n" . $expires . "\n" . $path;
         $sig = hash_hmac('sha1', $hmac_body, self::$__secretKey);
         $parameter = http_build_query(array("temp_url_sig" => $sig, "temp_url_expires" => $expires));
-        return "http://" . self::$__account . '-' . $bucket . '.stor.sinaapp.com/' . rawurlencode($uri) . "?" . $parameter;
+        return "http://" . self::$__account . '-' . $bucket . '.stor.sinaapp.com/' . self::__encodeURI($uri) . "?" . $parameter;
     }
 
     /**
@@ -827,7 +827,7 @@ class Storage
      */
     public static function getCdnUrl($bucket, $uri)
     {
-        return "http://". self::$__account . '.sae.sinacn.com/.app-stor/' . $bucket . '/' . rawurlencode($uri);
+        return "http://". self::$__account . '.sae.sinacn.com/.app-stor/' . $bucket . '/' . self::__encodeURI($uri);
     }
 
     /**
@@ -919,6 +919,10 @@ class Storage
         return 'application/octet-stream';
     }
 
+    private static function __encodeURI($uri)
+    {
+        return str_replace('%2F', '/', rawurlencode($uri));
+    }
 
     public static function __getTime()
     {
