@@ -318,7 +318,7 @@ class Storage
      * @param string $delimiter 分隔符
      * @return array | false
      */
-    public static function getBucket($bucket, $prefix = null, $marker = null, $limit = 1000, $delimiter = null)
+    public static function getBucket($bucket, $prefix = null, $marker = null, $limit = 1000, $delimiter = null, $keyword = null)
     {
         $result = array();
 
@@ -328,6 +328,7 @@ class Storage
             if ($prefix !== null && $prefix !== '') $rest->setParameter('prefix', $prefix);
             if ($marker !== null && $marker !== '') $rest->setParameter('marker', $marker);
             if ($delimiter !== null && $delimiter !== '') $rest->setParameter('delimiter', $delimiter);
+            if ($keyword !== null && $keyword !== '') $rest->setParameter('keyword', $keyword);
             else if (!empty(self::$defDelimiter)) $rest->setParameter('delimiter', self::$defDelimiter);
             if ($limit > 1000) {
                 $max_keys = 1000;
