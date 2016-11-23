@@ -737,6 +737,7 @@ class Storage
             strpos($h, 'x-sws-') === 0 ? $rest->setSwsHeader($h, $v) : $rest->setHeader($h, $v);
         foreach ($metaHeaders as $h => $v) $rest->setSwsHeader('x-sws-object-meta-'.$h, $v);
         $rest->setSwsHeader('x-sws-copy-from', sprintf('/%s/%s', $srcBucket, rawurlencode($srcUri)));
+        $rest->setSwsHeader('x-sws-newest', '1');
 
         $rest = $rest->getResponse();
         if ($rest->error === false && $rest->code !== 201)
@@ -747,10 +748,7 @@ class Storage
                 $rest->error['code'], $rest->error['message']), __FILE__, __LINE__);
             return false;
         }
-        return isset($rest->body->LastModified, $rest->body->ETag) ? array(
-            'time' => strtotime((string)$rest->body->LastModified),
-            'hash' => substr((string)$rest->body->ETag, 1, -1)
-        ) : false;
+        return isset($rest->headers['time'], $rest->headers['hash']) ? $rest->headers : false;
     }
 
 
@@ -1177,7 +1175,7 @@ final class StorageRequest
                 $this->response->headers['size'] = (int)$value;
             elseif ($header == 'Content-Type')
                 $this->response->headers['type'] = $value;
-            elseif ($header == 'ETag')
+            elseif ($header == 'ETag' || $header == 'Etag')
                 $this->response->headers['hash'] = $value{0} == '"' ? substr($value, 1, -1) : $value;
             elseif (preg_match('/^x-sws-(?:account|container|object)-read$/i', $header))
                 $this->response->headers['acl'] = $value;
